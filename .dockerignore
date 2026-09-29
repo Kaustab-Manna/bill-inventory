@@ -1,0 +1,10 @@
+.git
+.github
+.env
+tests
+phpunit.xml.dist
+scratch
+builds
+*.md
+.gitignore
+.dockerignore

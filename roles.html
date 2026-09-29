@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Inventory & Billing Management Software - Manage your business efficiently">
+    <title>Role Management | MallInventory Pro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="http://localhost:8080/css/app.css">
+    </head>
+<body>
+    <div class="app-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+    <!-- Brand -->
+    <div class="sidebar-brand">
+        <div class="brand-icon">M</div>
+        <span class="brand-text">MallInventory</span>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="sidebar-nav">
+        <!-- MAIN -->
+        <div class="menu-label">Main</div>
+        <a href="http://localhost:8080/dashboard" class="menu-item ">
+            <span class="menu-icon"><i class="fas fa-th-large"></i></span>
+            <span class="menu-text">Dashboard</span>
+        </a>
+
+        <!-- INVENTORY -->
+        <div class="menu-label">Inventory</div>
+        <div class="menu-group ">
+            <div class="menu-item" onclick="toggleMenuGroup(this)">
+                <span class="menu-icon"><i class="fas fa-box"></i></span>
+                <span class="menu-text">Products</span>
+                <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="menu-submenu">
+                <a href="http://localhost:8080/products" class="menu-item ">
+                    <span class="menu-text">All Products</span>
+                </a>
+                <a href="http://localhost:8080/categories" class="menu-item ">
+                    <span class="menu-text">Categories</span>
+                </a>
+                <a href="http://localhost:8080/brands" class="menu-item ">
+                    <span class="menu-text">Brands</span>
+                </a>
+                <a href="http://localhost:8080/units" class="menu-item ">
+                    <span class="menu-text">Units</span>
+                </a>
+            </div>
+        </div>
+
+        <div class="menu-group ">
+            <div class="menu-item" onclick="toggleMenuGroup(this)">
+                <span class="menu-icon"><i class="fas fa-warehouse"></i></span>
+                <span class="menu-text">Inventory</span>
+                <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="menu-submenu">
+                <a href="http://localhost:8080/stock" class="menu-item ">
+                    <span class="menu-text">Stock Overview</span>
+                </a>
+                <a href="http://localhost:8080/warehouses" class="menu-item ">
+                    <span class="menu-text">Warehouses</span>
+                </a>
+                <a href="http://localhost:8080/stock-transfers" class="menu-item ">
+                    <span class="menu-text">Stock Transfers</span>
+                </a>
+                <a href="http://localhost:8080/stock-adjustments" class="menu-item ">
+                    <span class="menu-text">Adjustments</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- SALES -->
+        <div class="menu-label">Sales</div>
+        <a href="http://localhost:8080/pos" class="menu-item ">
+            <span class="menu-icon"><i class="fas fa-cash-register"></i></span>
+            <span class="menu-text">POS Billing</span>
+            <span class="menu-badge">New</span>
+        </a>
+        <div class="menu-group ">
+            <div class="menu-item" onclick="toggleMenuGroup(this)">
+                <span class="menu-icon"><i class="fas fa-shopping-cart"></i></span>
+                <span class="menu-text">Sales</span>
+                <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="menu-submenu">
+                <a href="http://localhost:8080/quotations" class="menu-item ">
+                    <span class="menu-text">Quotations</span>
+                </a>
+                <a href="http://localhost:8080/sales" class="menu-item ">
+                    <span class="menu-text">Sales Invoices</span>
+                </a>
+                <a href="http://localhost:8080/sales-returns" class="menu-item ">
+                    <span class="menu-text">Sales Returns</span>
+                </a>
+                <a href="http://localhost:8080/inspections" class="menu-item ">
+                    <span class="menu-text">QC Inspections</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- PURCHASE -->
+        <div class="menu-label">Purchase</div>
+        <div class="menu-group ">
+            <div class="menu-item" onclick="toggleMenuGroup(this)">
+                <span class="menu-icon"><i class="fas fa-truck"></i></span>
+                <span class="menu-text">Purchases</span>
+                <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="menu-submenu">
+                <a href="http://localhost:8080/purchase-orders" class="menu-item ">
+                    <span class="menu-text">Purchase Orders</span>
+                </a>
+                <a href="http://localhost:8080/purchases" class="menu-item ">
+                    <span class="menu-text">Purchase Invoices</span>
+                </a>
+                <a href="http://localhost:8080/purchase-returns" class="menu-item ">
+                    <span class="menu-text">Purchase Returns</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- PARTIES -->
+        <div class="menu-label">Parties</div>
+        <a href="http://localhost:8080/customers" class="menu-item ">
+            <span class="menu-icon"><i class="fas fa-users"></i></span>
+            <span class="menu-text">Customers</span>
+        </a>
+        <a href="http://localhost:8080/vendors" class="menu-item ">
+            <span class="menu-icon"><i class="fas fa-handshake"></i></span>
+            <span class="menu-text">Vendors (Suppliers)</span>
+        </a>
+
+        <!-- FINANCE -->
+        <div class="menu-label">Finance</div>
+        <div class="menu-group ">
+            <div class="menu-item" onclick="toggleMenuGroup(this)">
+                <span class="menu-icon"><i class="fas fa-coins"></i></span>
+                <span class="menu-text">Finance</span>
+                <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="menu-submenu">
+                <a href="http://localhost:8080/payments" class="menu-item ">
+                    <span class="menu-text">Payments</span>
+                </a>
+                <a href="http://localhost:8080/receivables" class="menu-item ">
+                    <span class="menu-text">Receivables</span>
+                </a>
+                <a href="http://localhost:8080/payables" class="menu-item ">
+                    <span class="menu-text">Payables</span>
+                </a>
+                <a href="http://localhost:8080/expenses" class="menu-item ">
+                    <span class="menu-text">Expenses</span>
+                </a>
+            </div>
+        </div>
+
+        <!-- REPORTS -->
+        <div class="menu-label">Reports</div>
+        <a href="http://localhost:8080/reports" class="menu-item ">
+            <span class="menu-icon"><i class="fas fa-chart-bar"></i></span>
+            <span class="menu-text">Reports & Analytics</span>
+        </a>
+
+        <!-- ADMINISTRATION -->
+        <div class="menu-label">Administration</div>
+        <a href="http://localhost:8080/users" class="menu-item ">
+            <span class="menu-icon"><i class="fas fa-user-shield"></i></span>
+            <span class="menu-text">Users</span>
+        </a>
+        <a href="http://localhost:8080/roles" class="menu-item active">
+            <span class="menu-icon"><i class="fas fa-key"></i></span>
+            <span class="menu-text">Roles & Permissions</span>
+        </a>
+        <a href="http://localhost:8080/branches" class="menu-item ">
+            <span class="menu-icon"><i class="fas fa-building"></i></span>
+            <span class="menu-text">Branches</span>
+        </a>
+        <a href="http://localhost:8080/audit-logs" class="menu-item ">
+            <span class="menu-icon"><i class="fas fa-shield-alt text-warning"></i></span>
+            <span class="menu-text">Audit Logs</span>
+        </a>
+
+        <div class="menu-group ">
+            <div class="menu-item" onclick="toggleMenuGroup(this)">
+                <span class="menu-icon"><i class="fas fa-cog"></i></span>
+                <span class="menu-text">Settings</span>
+                <span class="menu-arrow"><i class="fas fa-chevron-right"></i></span>
+            </div>
+            <div class="menu-submenu">
+                <a href="http://localhost:8080/settings/company" class="menu-item ">
+                    <span class="menu-text">Company Profile</span>
+                </a>
+                <a href="http://localhost:8080/settings/general" class="menu-item ">
+                    <span class="menu-text">General Settings</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Sidebar Footer -->
+    <div class="sidebar-footer">
+        <a href="http://localhost:8080/logout" class="menu-item" style="margin:0; color: var(--danger);">
+            <span class="menu-icon"><i class="fas fa-sign-out-alt"></i></span>
+            <span class="menu-text">Logout</span>
+        </a>
+    </div>
+</aside>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <!-- Header -->
+            <header class="header">
+    <div class="header-left">
+        <button class="toggle-sidebar" onclick="toggleSidebar()" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+        </button>
+        <div class="page-breadcrumb">
+            <i class="fas fa-home"></i>
+            <span>/</span>
+            <span>Role Management</span>
+        </div>
+    </div>
+
+    <div class="header-right">
+        <div class="header-search">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" placeholder="Search anything..." id="globalSearch">
+        </div>
+
+        <div class="dropdown">
+            <button class="header-btn" title="Notifications" onclick="toggleDropdown('notifDropdown')">
+                <i class="fas fa-bell"></i>
+                            </button>
+            <div class="dropdown-menu p-0" id="notifDropdown" style="width: 320px; right: 0; left: auto; max-height: 400px; overflow-y: auto;">
+                <div class="bg-primary text-white fw-bold p-3 border-bottom d-flex justify-content-between align-items-center">
+                    <span>Notifications</span>
+                    <a href="http://localhost:8080/notifications/mark-all-read" class="text-white small text-decoration-none"><i class="fas fa-check-double"></i> Mark all read</a>
+                </div>
+                <div class="list-group list-group-flush">
+                                            <div class="p-4 text-center text-muted">
+                            <i class="fas fa-bell-slash fa-2x mb-2"></i>
+                            <p class="mb-0">No new notifications</p>
+                        </div>
+                                    </div>
+                <div class="p-2 border-top text-center bg-dark">
+                    <a href="http://localhost:8080/notifications" class="text-decoration-none small fw-bold text-primary">View All Notifications</a>
+                </div>
+            </div>
+        </div>
+
+        <button class="header-btn" title="Fullscreen" onclick="toggleFullscreen()">
+            <i class="fas fa-expand"></i>
+        </button>
+
+        <div class="dropdown">
+            <div class="user-dropdown" onclick="toggleDropdown('userDropdown')">
+                <div class="user-avatar">
+                    A                </div>
+                <div class="user-info">
+                    <div class="user-name">Admin</div>
+                    <div class="user-role">Super Admin</div>
+                </div>
+                <i class="fas fa-chevron-down" style="font-size:0.65rem; color:var(--text-muted);"></i>
+            </div>
+            <div class="dropdown-menu" id="userDropdown">
+                <a href="http://localhost:8080/settings/company" class="dropdown-item">
+                    <i class="fas fa-building"></i> Company Profile
+                </a>
+                <a href="http://localhost:8080/settings/general" class="dropdown-item">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+                <div class="dropdown-divider"></div>
+                <a href="http://localhost:8080/logout" class="dropdown-item" style="color:var(--danger);">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+        </div>
+    </div>
+</header>
+
+            <!-- Content Area -->
+            <div class="content-area">
+                
+<div class="page-header">
+    <div>
+        <h1><i class="fas fa-key" style="color:var(--warning);margin-right:8px;"></i> Roles & Permissions</h1>
+        <p>Manage user roles and configure module-level access permissions</p>
+    </div>
+    <button class="btn btn-primary" onclick="openCreateRoleModal()">
+        <i class="fas fa-plus"></i> Add Role
+    </button>
+</div>
+
+<!-- Roles Grid -->
+<div style="display:grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap:20px;">
+            <div class="card stagger-item" style="position:relative;">
+                            <div style="position:absolute;top:12px;right:12px;">
+                    <span class="badge badge-warning"><i class="fas fa-lock" style="margin-right:4px;"></i> System</span>
+                </div>
+                        <div class="d-flex items-center gap-12 mb-16">
+                <div class="kpi-icon primary" style="width:42px;height:42px;">
+                    <i class="fas fa-user-tag"></i>
+                </div>
+                <div>
+                    <h3 style="font-size:1rem;">Super Admin</h3>
+                    <span style="font-size:0.75rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">super_admin</span>
+                </div>
+            </div>
+            <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;">Full system access</p>
+            <div class="d-flex items-center justify-between">
+                <span style="font-size:0.8rem;color:var(--text-muted);">
+                    <i class="fas fa-users" style="margin-right:4px;"></i> 1 user(s)
+                </span>
+                <div class="action-btns">
+                    <button class="btn-icon edit" title="Edit" onclick="editRole(1)">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                                    </div>
+            </div>
+        </div>
+            <div class="card stagger-item" style="position:relative;">
+                            <div style="position:absolute;top:12px;right:12px;">
+                    <span class="badge badge-warning"><i class="fas fa-lock" style="margin-right:4px;"></i> System</span>
+                </div>
+                        <div class="d-flex items-center gap-12 mb-16">
+                <div class="kpi-icon primary" style="width:42px;height:42px;">
+                    <i class="fas fa-user-tag"></i>
+                </div>
+                <div>
+                    <h3 style="font-size:1rem;">Admin</h3>
+                    <span style="font-size:0.75rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">admin</span>
+                </div>
+            </div>
+            <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;">Administrative access</p>
+            <div class="d-flex items-center justify-between">
+                <span style="font-size:0.8rem;color:var(--text-muted);">
+                    <i class="fas fa-users" style="margin-right:4px;"></i> 0 user(s)
+                </span>
+                <div class="action-btns">
+                    <button class="btn-icon edit" title="Edit" onclick="editRole(2)">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                                    </div>
+            </div>
+        </div>
+            <div class="card stagger-item" style="position:relative;">
+                        <div class="d-flex items-center gap-12 mb-16">
+                <div class="kpi-icon primary" style="width:42px;height:42px;">
+                    <i class="fas fa-user-tag"></i>
+                </div>
+                <div>
+                    <h3 style="font-size:1rem;">Manager</h3>
+                    <span style="font-size:0.75rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">manager</span>
+                </div>
+            </div>
+            <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;">Management access</p>
+            <div class="d-flex items-center justify-between">
+                <span style="font-size:0.8rem;color:var(--text-muted);">
+                    <i class="fas fa-users" style="margin-right:4px;"></i> 1 user(s)
+                </span>
+                <div class="action-btns">
+                    <button class="btn-icon edit" title="Edit" onclick="editRole(3)">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                                            <button class="btn-icon delete" title="Delete" onclick="confirmDelete('http://localhost:8080/roles/delete/3', 'Manager')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                                    </div>
+            </div>
+        </div>
+            <div class="card stagger-item" style="position:relative;">
+                        <div class="d-flex items-center gap-12 mb-16">
+                <div class="kpi-icon primary" style="width:42px;height:42px;">
+                    <i class="fas fa-user-tag"></i>
+                </div>
+                <div>
+                    <h3 style="font-size:1rem;">Sales Executive</h3>
+                    <span style="font-size:0.75rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">sales_exec</span>
+                </div>
+            </div>
+            <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;">Sales operations access</p>
+            <div class="d-flex items-center justify-between">
+                <span style="font-size:0.8rem;color:var(--text-muted);">
+                    <i class="fas fa-users" style="margin-right:4px;"></i> 1 user(s)
+                </span>
+                <div class="action-btns">
+                    <button class="btn-icon edit" title="Edit" onclick="editRole(4)">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                                            <button class="btn-icon delete" title="Delete" onclick="confirmDelete('http://localhost:8080/roles/delete/4', 'Sales Executive')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                                    </div>
+            </div>
+        </div>
+            <div class="card stagger-item" style="position:relative;">
+                        <div class="d-flex items-center gap-12 mb-16">
+                <div class="kpi-icon primary" style="width:42px;height:42px;">
+                    <i class="fas fa-user-tag"></i>
+                </div>
+                <div>
+                    <h3 style="font-size:1rem;">Purchase Executive</h3>
+                    <span style="font-size:0.75rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">purchase_exec</span>
+                </div>
+            </div>
+            <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;">Purchase operations access</p>
+            <div class="d-flex items-center justify-between">
+                <span style="font-size:0.8rem;color:var(--text-muted);">
+                    <i class="fas fa-users" style="margin-right:4px;"></i> 0 user(s)
+                </span>
+                <div class="action-btns">
+                    <button class="btn-icon edit" title="Edit" onclick="editRole(5)">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                                            <button class="btn-icon delete" title="Delete" onclick="confirmDelete('http://localhost:8080/roles/delete/5', 'Purchase Executive')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                                    </div>
+            </div>
+        </div>
+            <div class="card stagger-item" style="position:relative;">
+                        <div class="d-flex items-center gap-12 mb-16">
+                <div class="kpi-icon primary" style="width:42px;height:42px;">
+                    <i class="fas fa-user-tag"></i>
+                </div>
+                <div>
+                    <h3 style="font-size:1rem;">Accountant</h3>
+                    <span style="font-size:0.75rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">accountant</span>
+                </div>
+            </div>
+            <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;">Financial access</p>
+            <div class="d-flex items-center justify-between">
+                <span style="font-size:0.8rem;color:var(--text-muted);">
+                    <i class="fas fa-users" style="margin-right:4px;"></i> 0 user(s)
+                </span>
+                <div class="action-btns">
+                    <button class="btn-icon edit" title="Edit" onclick="editRole(6)">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                                            <button class="btn-icon delete" title="Delete" onclick="confirmDelete('http://localhost:8080/roles/delete/6', 'Accountant')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                                    </div>
+            </div>
+        </div>
+            <div class="card stagger-item" style="position:relative;">
+                        <div class="d-flex items-center gap-12 mb-16">
+                <div class="kpi-icon primary" style="width:42px;height:42px;">
+                    <i class="fas fa-user-tag"></i>
+                </div>
+                <div>
+                    <h3 style="font-size:1rem;">Store / Warehouse Staff</h3>
+                    <span style="font-size:0.75rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">warehouse_staff</span>
+                </div>
+            </div>
+            <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;">Warehouse operations</p>
+            <div class="d-flex items-center justify-between">
+                <span style="font-size:0.8rem;color:var(--text-muted);">
+                    <i class="fas fa-users" style="margin-right:4px;"></i> 0 user(s)
+                </span>
+                <div class="action-btns">
+                    <button class="btn-icon edit" title="Edit" onclick="editRole(7)">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                                            <button class="btn-icon delete" title="Delete" onclick="confirmDelete('http://localhost:8080/roles/delete/7', 'Store / Warehouse Staff')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                                    </div>
+            </div>
+        </div>
+            <div class="card stagger-item" style="position:relative;">
+                        <div class="d-flex items-center gap-12 mb-16">
+                <div class="kpi-icon primary" style="width:42px;height:42px;">
+                    <i class="fas fa-user-tag"></i>
+                </div>
+                <div>
+                    <h3 style="font-size:1rem;">Cashier</h3>
+                    <span style="font-size:0.75rem;color:var(--text-muted);font-family:'JetBrains Mono',monospace;">cashier</span>
+                </div>
+            </div>
+            <p style="font-size:0.85rem;color:var(--text-muted);margin-bottom:16px;">POS and billing access</p>
+            <div class="d-flex items-center justify-between">
+                <span style="font-size:0.8rem;color:var(--text-muted);">
+                    <i class="fas fa-users" style="margin-right:4px;"></i> 0 user(s)
+                </span>
+                <div class="action-btns">
+                    <button class="btn-icon edit" title="Edit" onclick="editRole(8)">
+                        <i class="fas fa-pen"></i>
+                    </button>
+                                            <button class="btn-icon delete" title="Delete" onclick="confirmDelete('http://localhost:8080/roles/delete/8', 'Cashier')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                                    </div>
+            </div>
+        </div>
+    </div>
+
+<!-- Role Modal -->
+<div class="modal-overlay" id="roleModal">
+    <div class="modal modal-lg">
+        <div class="modal-header">
+            <h3 id="roleModalTitle"><i class="fas fa-user-tag" style="color:var(--primary-light);margin-right:8px;"></i> Add New Role</h3>
+            <button class="modal-close" onclick="closeModal('roleModal')"><i class="fas fa-times"></i></button>
+        </div>
+        <div class="modal-body">
+            <form id="roleForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Role Name (System Key) *</label>
+                        <input type="text" name="name" class="form-control" placeholder="e.g., inventory_manager" required id="roleName">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Display Name *</label>
+                        <input type="text" name="display_name" class="form-control" placeholder="e.g., Inventory Manager" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea name="description" class="form-control" placeholder="Brief role description" rows="2"></textarea>
+                </div>
+
+                <!-- Permissions -->
+                <div style="margin-top:20px;">
+                    <label class="form-label" style="margin-bottom:12px;">Permissions</label>
+                    <div style="display:flex;gap:8px;margin-bottom:16px;">
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="selectAllPermissions()">Select All</button>
+                        <button type="button" class="btn btn-ghost btn-sm" onclick="deselectAllPermissions()">Deselect All</button>
+                    </div>
+                    <div style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:var(--radius-md);padding:16px;">
+                                                                            <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Audit Logs                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="123" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Backups                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="125" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="126" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Restore</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="124" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Barcodes                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="36" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="37" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Print</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="35" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Batches                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="97" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="98" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="96" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Branches                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="11" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="13" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="12" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="10" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Brands                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="28" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="30" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="29" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="134" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Manage</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="27" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="133" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Categories                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="24" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="26" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="25" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="132" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Manage</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="23" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="131" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Company                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="15" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="14" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Customers                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="44" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="46" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="45" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="47" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Export</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="43" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Dashboard                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="1" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Documents                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="122" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="121" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Upload</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="120" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Expenses                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="108" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="110" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="109" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="111" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Export</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="107" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Invoices                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="113" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="115" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Export</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="114" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Print</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="112" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Notifications                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="119" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Manage</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="118" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Payables                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="106" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Pay</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="105" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Payments                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="100" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="102" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="101" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="99" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Pos                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="78" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="77" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Products                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="19" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="128" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="21" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="130" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="20" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="129" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="22" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Export</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="18" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="127" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Purchases                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="59" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="61" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="60" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="62" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Export</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="58" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Purchase Orders                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="56" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Approve</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="53" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="55" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="54" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="57" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Export</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="52" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Purchase Returns                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="64" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="66" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="65" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="63" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Quotations                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="68" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="70" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="69" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="71" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Export</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="67" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Receivables                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="104" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Collect</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="103" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Reports                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="117" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Export</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="116" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Roles                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="7" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="9" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="8" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="6" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Sales                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="73" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="75" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="74" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="76" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Export</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="72" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Salespersons                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="49" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="51" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="50" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="48" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Sales Returns                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="80" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="82" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="81" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="79" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Settings                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="17" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="16" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Stock                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="84" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Adjust</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="85" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Export</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="142" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Manage</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="83" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="141" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Stock Adjustments                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="95" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Approve</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="94" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="93" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Stock Transfers                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="92" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Approve</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="91" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="90" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Suppliers                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="39" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="41" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="40" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="42" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Export</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="38" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Taxes                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="138" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Manage</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="137" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Units                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="32" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="34" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="33" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="136" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Manage</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="31" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="135" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Users                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="3" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="5" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="4" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="2" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                                    <div style="margin-bottom:16px;">
+                                <div style="font-weight:600;font-size:0.85rem;color:var(--text-primary);margin-bottom:8px;text-transform:capitalize;">
+                                    <i class="fas fa-folder" style="color:var(--primary-light);margin-right:6px;"></i>
+                                    Warehouses                                </div>
+                                <div style="display:flex;flex-wrap:wrap;gap:8px;padding-left:20px;">
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="87" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Create</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="89" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Delete</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="88" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Edit</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="140" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">Manage</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="86" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                            <label class="form-check" style="min-width:140px;">
+                                            <input type="checkbox" name="permissions[]" value="139" class="perm-checkbox">
+                                            <span style="font-size:0.8rem;">View</span>
+                                        </label>
+                                                                    </div>
+                            </div>
+                                            </div>
+                </div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-ghost" onclick="closeModal('roleModal')">Cancel</button>
+            <button class="btn btn-primary" onclick="saveRole()"><i class="fas fa-save"></i> Save Role</button>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Core JS -->
+    <script src="http://localhost:8080/js/app.js"></script>
+
+    <!-- Flash messages as toasts -->
+        
+    <script>
+    let editingRoleId = null;
+
+    function openCreateRoleModal() {
+        editingRoleId = null;
+        document.getElementById('roleModalTitle').innerHTML = '<i class="fas fa-user-tag" style="color:var(--primary-light);margin-right:8px;"></i> Add New Role';
+        document.getElementById('roleName').readOnly = false;
+        resetForm('roleForm');
+        deselectAllPermissions();
+        openModal('roleModal');
+    }
+
+    async function editRole(id) {
+        const result = await ajaxGet(`http://localhost:8080/roles/edit/${id}`);
+        if (result.success) {
+            editingRoleId = id;
+            document.getElementById('roleModalTitle').innerHTML = '<i class="fas fa-user-edit" style="color:var(--info);margin-right:8px;"></i> Edit Role';
+            setFormValues('roleForm', result.role);
+
+            if (result.role.is_system) {
+                document.getElementById('roleName').readOnly = true;
+            } else {
+                document.getElementById('roleName').readOnly = false;
+            }
+
+            // Set permissions
+            deselectAllPermissions();
+            result.permissions.forEach(permId => {
+                const cb = document.querySelector(`.perm-checkbox[value="${permId}"]`);
+                if (cb) cb.checked = true;
+            });
+
+            openModal('roleModal');
+        }
+    }
+
+    async function saveRole() {
+        const form = getFormData('roleForm');
+        const url = editingRoleId
+            ? `http://localhost:8080/roles/update/${editingRoleId}`
+            : 'http://localhost:8080/roles';
+        await ajaxPost(url, form, { closeModal: 'roleModal', reload: true });
+    }
+
+    function selectAllPermissions() {
+        document.querySelectorAll('.perm-checkbox').forEach(cb => cb.checked = true);
+    }
+
+    function deselectAllPermissions() {
+        document.querySelectorAll('.perm-checkbox').forEach(cb => cb.checked = false);
+    }
+</script>
+</body>
+</html>

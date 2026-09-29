@@ -1,0 +1,68 @@
+# Render Blueprint Specification (render.yaml)
+# Docs: https://render.com/docs/blueprint-spec
+
+services:
+  # -------------------------------------------------------------
+  # 1. Backend Server (CodeIgniter 4 via Docker Web Service)
+  # -------------------------------------------------------------
+  - type: web
+    name: bill-inventory-app
+    runtime: docker
+    plan: free
+    region: oregon # Choose: oregon, frankfurt, ohio, singapore
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /login
+    envVars:
+      - key: CI_ENVIRONMENT
+        value: production
+      - key: app.baseURL
+        sync: false # Set in Render dashboard to: https://<your-service-name>.onrender.com/
+      - key: app.indexPage
+        value: ""
+      # Database connection (e.g. from TiDB Cloud / Aiven / External MySQL)
+      - key: database.default.hostname
+        sync: false
+      - key: database.default.database
+        sync: false
+      - key: database.default.username
+        sync: false
+      - key: database.default.password
+        sync: false
+      - key: database.default.port
+        value: "3306"
+      - key: database.default.DBDriver
+        value: "MySQLi"
+      - key: session.driver
+        value: "CodeIgniter\\Session\\Handlers\\FileHandler"
+      # Automatically run database migrations on container start
+      - key: RUN_MIGRATIONS
+        value: "true"
+
+  # -------------------------------------------------------------
+  # 2. Frontend Static Site (Optional)
+  # -------------------------------------------------------------
+  # Note: BillInventory renders views directly in PHP via CodeIgniter MVC.
+  # If you have a separate static frontend (HTML/CSS/JS or React/Vue),
+  # uncomment the static site block below:
+  # - type: static
+  #   name: bill-inventory-static-frontend
+  #   plan: free
+  #   publishPath: ./public
+  #   routes:
+  #     - type: rewrite
+  #       source: /*
+  #       destination: /index.html
+
+# ---------------------------------------------------------------
+# Note on Render Free Database:
+# Render only provides managed PostgreSQL in its free tier (not MySQL).
+# Since BillInventory uses MySQL, use a 100% Free Cloud MySQL like:
+# - TiDB Cloud (Serverless MySQL, 25GB free forever): https://tidbcloud.com
+# - Aiven MySQL (Free tier): https://aiven.io
+# Or if you want Render's native PostgreSQL, uncomment below and set DBDriver=Postgre:
+# databases:
+#   - name: bill-inventory-postgres
+#     plan: free
+#     databaseName: bill_inventory
+#     user: dbuser
