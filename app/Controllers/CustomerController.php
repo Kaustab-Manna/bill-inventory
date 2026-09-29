@@ -147,7 +147,7 @@ class CustomerController extends BaseController
             $entry['balance'] = $runningBalance;
         }
 
-        $outstanding = $runningBalance; // Final balance owed by customer
+        $outstanding = $runningBalance; // final balance owed by customer
 
         // Fetch Documents
         $documentModel = new \App\Models\DocumentModel();

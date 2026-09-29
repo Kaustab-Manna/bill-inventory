@@ -8,14 +8,17 @@ class AddDiscountPercentToSales extends Migration
 {
     public function up()
     {
-        $this->forge->addColumn('sales', [
-            'discount_percent' => [
-                'type' => 'DECIMAL',
-                'constraint' => '5,2',
-                'default' => 0,
-                'after' => 'tax_amount'
-            ]
-        ]);
+        $fields = $this->db->getFieldNames('sales');
+        if (!in_array('discount_percent', $fields)) {
+            $this->forge->addColumn('sales', [
+                'discount_percent' => [
+                    'type' => 'DECIMAL',
+                    'constraint' => '5,2',
+                    'default' => 0,
+                    'after' => 'tax_amount'
+                ]
+            ]);
+        }
     }
 
     public function down()

@@ -54,17 +54,7 @@ abstract class BaseController extends Controller
         try {
             $db = \Config\Database::connect();
             if (!$db->tableExists('purchases')) {
-                $runner = \Config\Services::migrations();
-                $runner->setNamespace(null);
-                $runner->latest();
-
-                $seeder = \Config\Database::seeder();
-                try {
-                    $seeder->call('App\Database\Seeds\CoreSeeder');
-                    $seeder->call('App\Database\Seeds\Phase2Seeder');
-                } catch (\Throwable $se) {
-                    // Ignore if already seeded
-                }
+                $this->ensureSchema($db);
             }
         } catch (\Throwable $me) {
             log_message('error', 'Auto-migration notice: ' . $me->getMessage());
@@ -125,5 +115,252 @@ abstract class BaseController extends Controller
         }
 
         $session->set('alerts_checked_date', $today);
+    }
+
+    protected function ensureSchema($db)
+    {
+        // 1. Try running migrations first
+        try {
+            $runner = \Config\Services::migrations();
+            $runner->setNamespace(null);
+            $runner->latest();
+        } catch (\Throwable $e) {
+            log_message('error', 'Migration runner note: ' . $e->getMessage());
+        }
+
+        // 2. Direct Fallback: Guarantee critical tables exist via raw SQL
+        if (!$db->tableExists('vendors')) {
+            $db->query("CREATE TABLE IF NOT EXISTS `vendors` (
+                `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `name` VARCHAR(150) NOT NULL,
+                `contact_person` VARCHAR(100) NULL,
+                `email` VARCHAR(150) NULL,
+                `phone` VARCHAR(20) NULL,
+                `address` TEXT NULL,
+                `tax_number` VARCHAR(50) NULL,
+                `is_active` TINYINT(1) DEFAULT 1,
+                `created_at` DATETIME NULL,
+                `updated_at` DATETIME NULL,
+                `deleted_at` DATETIME NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+
+        if (!$db->tableExists('purchase_orders')) {
+            $db->query("CREATE TABLE IF NOT EXISTS `purchase_orders` (
+                `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `po_no` VARCHAR(50) UNIQUE NOT NULL,
+                `vendor_id` BIGINT UNSIGNED NOT NULL,
+                `warehouse_id` BIGINT UNSIGNED NOT NULL,
+                `subtotal` DECIMAL(15,2) DEFAULT 0,
+                `tax_amount` DECIMAL(15,2) DEFAULT 0,
+                `discount_percent` DECIMAL(5,2) DEFAULT 0,
+                `discount` DECIMAL(15,2) DEFAULT 0,
+                `total_amount` DECIMAL(15,2) DEFAULT 0,
+                `status` ENUM('draft', 'sent', 'approved', 'completed', 'cancelled') DEFAULT 'draft',
+                `expected_date` DATE NULL,
+                `notes` TEXT NULL,
+                `created_by` BIGINT UNSIGNED NULL,
+                `created_at` DATETIME NULL,
+                `updated_at` DATETIME NULL,
+                `deleted_at` DATETIME NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+
+        if (!$db->tableExists('purchase_order_items')) {
+            $db->query("CREATE TABLE IF NOT EXISTS `purchase_order_items` (
+                `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `po_id` BIGINT UNSIGNED NOT NULL,
+                `product_id` BIGINT UNSIGNED NOT NULL,
+                `quantity` DECIMAL(15,3) DEFAULT 0,
+                `unit_price` DECIMAL(15,2) DEFAULT 0,
+                `subtotal` DECIMAL(15,2) DEFAULT 0,
+                `tax_amount` DECIMAL(15,2) DEFAULT 0,
+                `total` DECIMAL(15,2) DEFAULT 0,
+                `created_at` DATETIME NULL,
+                `updated_at` DATETIME NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+
+        if (!$db->tableExists('purchases')) {
+            $db->query("CREATE TABLE IF NOT EXISTS `purchases` (
+                `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `invoice_no` VARCHAR(50) UNIQUE NOT NULL,
+                `vendor_id` BIGINT UNSIGNED NOT NULL,
+                `warehouse_id` BIGINT UNSIGNED NOT NULL,
+                `subtotal` DECIMAL(15,2) DEFAULT 0,
+                `tax_amount` DECIMAL(15,2) DEFAULT 0,
+                `discount_percent` DECIMAL(5,2) DEFAULT 0,
+                `discount` DECIMAL(15,2) DEFAULT 0,
+                `total_amount` DECIMAL(15,2) DEFAULT 0,
+                `paid_amount` DECIMAL(15,2) DEFAULT 0,
+                `payment_status` ENUM('unpaid', 'partial', 'paid') DEFAULT 'unpaid',
+                `purchase_date` DATETIME NOT NULL,
+                `notes` TEXT NULL,
+                `created_by` BIGINT UNSIGNED NULL,
+                `created_at` DATETIME NULL,
+                `updated_at` DATETIME NULL,
+                `deleted_at` DATETIME NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+
+        if (!$db->tableExists('purchase_items')) {
+            $db->query("CREATE TABLE IF NOT EXISTS `purchase_items` (
+                `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `purchase_id` BIGINT UNSIGNED NOT NULL,
+                `product_id` BIGINT UNSIGNED NOT NULL,
+                `quantity` DECIMAL(15,3) DEFAULT 0,
+                `unit_price` DECIMAL(15,2) DEFAULT 0,
+                `subtotal` DECIMAL(15,2) DEFAULT 0,
+                `tax_amount` DECIMAL(15,2) DEFAULT 0,
+                `total` DECIMAL(15,2) DEFAULT 0,
+                `created_at` DATETIME NULL,
+                `updated_at` DATETIME NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+
+        if (!$db->tableExists('purchase_returns')) {
+            $db->query("CREATE TABLE IF NOT EXISTS `purchase_returns` (
+                `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `return_no` VARCHAR(50) UNIQUE NOT NULL,
+                `vendor_id` BIGINT UNSIGNED NOT NULL,
+                `warehouse_id` BIGINT UNSIGNED NOT NULL,
+                `subtotal` DECIMAL(15,2) DEFAULT 0,
+                `tax_amount` DECIMAL(15,2) DEFAULT 0,
+                `total_amount` DECIMAL(15,2) DEFAULT 0,
+                `return_date` DATETIME NOT NULL,
+                `notes` TEXT NULL,
+                `created_by` BIGINT UNSIGNED NULL,
+                `created_at` DATETIME NULL,
+                `updated_at` DATETIME NULL,
+                `deleted_at` DATETIME NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+
+        if (!$db->tableExists('purchase_return_items')) {
+            $db->query("CREATE TABLE IF NOT EXISTS `purchase_return_items` (
+                `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `purchase_return_id` BIGINT UNSIGNED NOT NULL,
+                `product_id` BIGINT UNSIGNED NOT NULL,
+                `quantity` DECIMAL(15,3) DEFAULT 0,
+                `unit_price` DECIMAL(15,2) DEFAULT 0,
+                `subtotal` DECIMAL(15,2) DEFAULT 0,
+                `tax_amount` DECIMAL(15,2) DEFAULT 0,
+                `total` DECIMAL(15,2) DEFAULT 0,
+                `created_at` DATETIME NULL,
+                `updated_at` DATETIME NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+
+        if (!$db->tableExists('payments')) {
+            $db->query("CREATE TABLE IF NOT EXISTS `payments` (
+                `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `payment_no` VARCHAR(50) UNIQUE NOT NULL,
+                `payment_type` ENUM('receipt', 'payment') NOT NULL,
+                `party_type` ENUM('customer', 'vendor') NOT NULL,
+                `party_id` BIGINT UNSIGNED NOT NULL,
+                `amount` DECIMAL(15,2) DEFAULT 0,
+                `payment_date` DATE NOT NULL,
+                `payment_method` VARCHAR(50) DEFAULT 'cash',
+                `reference_no` VARCHAR(100) NULL,
+                `notes` TEXT NULL,
+                `created_by` BIGINT UNSIGNED NULL,
+                `created_at` DATETIME NULL,
+                `updated_at` DATETIME NULL,
+                `deleted_at` DATETIME NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+
+        if (!$db->tableExists('expenses')) {
+            $db->query("CREATE TABLE IF NOT EXISTS `expenses` (
+                `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `expense_no` VARCHAR(50) UNIQUE NOT NULL,
+                `category` VARCHAR(100) NOT NULL,
+                `amount` DECIMAL(15,2) DEFAULT 0,
+                `expense_date` DATE NOT NULL,
+                `branch_id` BIGINT UNSIGNED NULL,
+                `paid_by` VARCHAR(50) DEFAULT 'cash',
+                `reference_no` VARCHAR(100) NULL,
+                `notes` TEXT NULL,
+                `created_by` BIGINT UNSIGNED NULL,
+                `created_at` DATETIME NULL,
+                `updated_at` DATETIME NULL,
+                `deleted_at` DATETIME NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+
+        if (!$db->tableExists('notifications')) {
+            $db->query("CREATE TABLE IF NOT EXISTS `notifications` (
+                `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `user_id` BIGINT UNSIGNED NULL,
+                `type` VARCHAR(50) NOT NULL,
+                `title` VARCHAR(255) NOT NULL,
+                `message` TEXT NOT NULL,
+                `link` VARCHAR(255) NULL,
+                `is_read` TINYINT(1) DEFAULT 0,
+                `created_at` DATETIME NULL,
+                `updated_at` DATETIME NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+
+        if (!$db->tableExists('documents')) {
+            $db->query("CREATE TABLE IF NOT EXISTS `documents` (
+                `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `entity_type` VARCHAR(50) NOT NULL,
+                `entity_id` BIGINT UNSIGNED NOT NULL,
+                `file_name` VARCHAR(255) NOT NULL,
+                `file_path` VARCHAR(255) NOT NULL,
+                `file_type` VARCHAR(100) NULL,
+                `file_size` BIGINT UNSIGNED NULL,
+                `uploaded_by` BIGINT UNSIGNED NULL,
+                `created_at` DATETIME NULL,
+                `updated_at` DATETIME NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+
+        if (!$db->tableExists('sale_returns')) {
+            $db->query("CREATE TABLE IF NOT EXISTS `sale_returns` (
+                `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `return_no` VARCHAR(50) UNIQUE NOT NULL,
+                `sale_id` BIGINT UNSIGNED NULL,
+                `customer_id` BIGINT UNSIGNED NULL,
+                `warehouse_id` BIGINT UNSIGNED NULL,
+                `subtotal` DECIMAL(15,2) DEFAULT 0,
+                `tax_amount` DECIMAL(15,2) DEFAULT 0,
+                `total_amount` DECIMAL(15,2) DEFAULT 0,
+                `status` ENUM('pending', 'completed') DEFAULT 'completed',
+                `return_date` DATE NOT NULL,
+                `notes` TEXT NULL,
+                `created_by` BIGINT UNSIGNED NULL,
+                `created_at` DATETIME NULL,
+                `updated_at` DATETIME NULL,
+                `deleted_at` DATETIME NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+
+        if (!$db->tableExists('sale_return_items')) {
+            $db->query("CREATE TABLE IF NOT EXISTS `sale_return_items` (
+                `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+                `sale_return_id` BIGINT UNSIGNED NOT NULL,
+                `product_id` BIGINT UNSIGNED NOT NULL,
+                `quantity` DECIMAL(15,3) DEFAULT 0,
+                `unit_price` DECIMAL(15,2) DEFAULT 0,
+                `subtotal` DECIMAL(15,2) DEFAULT 0,
+                `tax_amount` DECIMAL(15,2) DEFAULT 0,
+                `total` DECIMAL(15,2) DEFAULT 0,
+                `item_condition` ENUM('sealed', 'broken_seal') DEFAULT 'sealed',
+                `inspection_status` ENUM('na', 'pending', 'passed', 'failed') DEFAULT 'na',
+                `created_at` DATETIME NULL,
+                `updated_at` DATETIME NULL
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+
+        // Try seeding if needed
+        try {
+            $seeder = \Config\Database::seeder();
+            $seeder->call('App\Database\Seeds\CoreSeeder');
+            $seeder->call('App\Database\Seeds\Phase2Seeder');
+        } catch (\Throwable $se) {
+            // Already seeded
+        }
     }
 }
