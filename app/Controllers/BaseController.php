@@ -48,8 +48,27 @@ abstract class BaseController extends Controller
      */
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
-        // Do Not Edit This Line
         parent::initController($request, $response, $logger);
+
+        // Ensure all database tables exist automatically on any deployment
+        try {
+            $db = \Config\Database::connect();
+            if (!$db->tableExists('purchases')) {
+                $runner = \Config\Services::migrations();
+                $runner->setNamespace(null);
+                $runner->latest();
+
+                $seeder = \Config\Database::seeder();
+                try {
+                    $seeder->call('App\Database\Seeds\CoreSeeder');
+                    $seeder->call('App\Database\Seeds\Phase2Seeder');
+                } catch (\Throwable $se) {
+                    // Ignore if already seeded
+                }
+            }
+        } catch (\Throwable $me) {
+            log_message('error', 'Auto-migration notice: ' . $me->getMessage());
+        }
 
         $session = \Config\Services::session();
         

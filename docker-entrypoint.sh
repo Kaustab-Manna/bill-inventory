@@ -13,6 +13,8 @@ chmod -R 775 /var/www/html/writable
 
 # Auto-run migrations & seeders on container startup (perfect for Render Free Tier)
 echo "Running database migrations..."
+cd /var/www/html || true
+php spark migrate || true
 php spark migrate --all || true
 
 echo "Running database seeders to create admin account..."
