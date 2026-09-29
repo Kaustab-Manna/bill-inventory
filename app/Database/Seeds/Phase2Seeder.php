@@ -8,6 +8,11 @@ class Phase2Seeder extends Seeder
 {
     public function run()
     {
+        if ($this->db->table('categories')->countAllResults() > 0) {
+            echo "Phase 2 data already seeded. Skipping.\n";
+            return;
+        }
+
         // 1. Seed Permissions
         $permissions = [
             // Products

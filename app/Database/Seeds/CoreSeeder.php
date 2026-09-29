@@ -8,6 +8,11 @@ class CoreSeeder extends Seeder
 {
     public function run()
     {
+        if ($this->db->table('roles')->countAllResults() > 0) {
+            echo "Core data already seeded. Skipping.\n";
+            return;
+        }
+
         // ==================== ROLES ====================
         $roles = [
             ['name' => 'super_admin',    'display_name' => 'Super Admin',         'description' => 'Full system access',         'is_system' => 1],
