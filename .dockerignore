@@ -8,3 +8,7 @@ builds
 *.md
 .gitignore
 .dockerignore
+composer.phar
+roles.html
+test_*.php
+*.db

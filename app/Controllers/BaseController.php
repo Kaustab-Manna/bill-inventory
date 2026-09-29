@@ -76,10 +76,20 @@ abstract class BaseController extends Controller
         if ($session->get('isLoggedIn')) {
             $this->generateSystemAlerts($session);
             
-            // Fetch unread notifications for the bell icon globally
-            $notificationModel = new \App\Models\NotificationModel();
-            $unreadCount = $notificationModel->getUnreadCount();
-            $latestNotifications = $notificationModel->getLatestUnread(5);
+            // Cache notifications in session for 60s to avoid 2 cross-region DB roundtrips on every page click
+            $lastChecked = (int)$session->get('notif_cached_at');
+            if (time() - $lastChecked > 60 || !$session->has('cached_unread_count')) {
+                $notificationModel = new \App\Models\NotificationModel();
+                $unreadCount = $notificationModel->getUnreadCount();
+                $latestNotifications = $notificationModel->getLatestUnread(5);
+                
+                $session->set('cached_unread_count', $unreadCount);
+                $session->set('cached_latest_notifs', $latestNotifications);
+                $session->set('notif_cached_at', time());
+            } else {
+                $unreadCount = (int)$session->get('cached_unread_count');
+                $latestNotifications = $session->get('cached_latest_notifs') ?: [];
+            }
             
             \Config\Services::renderer()->setVar('globalUnreadCount', $unreadCount);
             \Config\Services::renderer()->setVar('globalNotifications', $latestNotifications);

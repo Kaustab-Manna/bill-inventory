@@ -126,3 +126,7 @@ nb-configuration.xml
 /phpunit*.xml
 scratch/
 test_db.php
+composer.phar
+roles.html
+builds
+*.db

@@ -9,7 +9,7 @@ services:
     name: bill-inventory-app
     runtime: docker
     plan: free
-    region: oregon # Choose: oregon, frankfurt, ohio, singapore
+    region: singapore # Matches TiDB Cloud ap-southeast-1 for ultra-low latency (<15ms)
     dockerfilePath: ./Dockerfile
     dockerContext: .
     healthCheckPath: /login
