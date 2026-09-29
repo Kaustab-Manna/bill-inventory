@@ -192,7 +192,7 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('/payments', 'PaymentController::index');
     $routes->get('/payments/create', 'PaymentController::create');
     $routes->post('/payments/store', 'PaymentController::store');
-    $routes->post('/payments/delete/(:num)', 'PaymentController::delete/$1');
+    $routes->match(['get', 'post'], '/payments/delete/(:num)', 'PaymentController::delete/$1');
 
     // Receivables
     $routes->get('/receivables', 'ReceivableController::index');
@@ -204,7 +204,7 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     $routes->get('/expenses', 'ExpenseController::index');
     $routes->get('/expenses/create', 'ExpenseController::create');
     $routes->post('/expenses/store', 'ExpenseController::store');
-    $routes->post('/expenses/delete/(:num)', 'ExpenseController::delete/$1');
+    $routes->match(['get', 'post'], '/expenses/delete/(:num)', 'ExpenseController::delete/$1');
 
     // Reports
     $routes->get('/reports', 'ReportController::index');

@@ -13,8 +13,8 @@ class ExpenseModel extends Model
     protected $useSoftDeletes   = false;
     protected $protectFields    = true;
     protected $allowedFields    = [
-        'expense_date', 'category', 'amount', 'payment_method', 
-        'reference_no', 'notes', 'created_by'
+        'expense_no', 'expense_date', 'category', 'amount', 'payment_method', 
+        'reference_no', 'notes', 'created_by', 'created_at', 'updated_at'
     ];
 
     protected bool $allowEmptyInserts = false;
@@ -24,7 +24,7 @@ class ExpenseModel extends Model
     protected array $castHandlers = [];
 
     // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';

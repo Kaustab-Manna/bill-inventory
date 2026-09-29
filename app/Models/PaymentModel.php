@@ -15,7 +15,7 @@ class PaymentModel extends Model
     protected $allowedFields    = [
         'payment_no', 'payment_date', 'type', 'customer_id', 'vendor_id', 
         'sale_id', 'purchase_id', 'amount', 'payment_method', 'reference_no', 
-        'notes', 'created_by'
+        'notes', 'created_by', 'created_at', 'updated_at'
     ];
 
     protected bool $allowEmptyInserts = false;
@@ -25,7 +25,7 @@ class PaymentModel extends Model
     protected array $castHandlers = [];
 
     // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';

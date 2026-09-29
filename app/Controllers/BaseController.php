@@ -53,13 +53,21 @@ abstract class BaseController extends Controller
         $session = \Config\Services::session();
 
         // Check and ensure database tables at most once per session to maximize speed
-        if (!$session->get('schema_checked')) {
+        if (!$session->get('schema_checked_v3')) {
             try {
                 $db = \Config\Database::connect();
-                if (!$db->fieldExists('commission_rate', 'users') || !$db->tableExists('purchases')) {
+                if (
+                    !$db->fieldExists('commission_rate', 'users') ||
+                    !$db->tableExists('purchases') ||
+                    !$db->tableExists('payments') ||
+                    !$db->fieldExists('customer_id', 'payments') ||
+                    !$db->fieldExists('vendor_id', 'payments') ||
+                    !$db->tableExists('expenses') ||
+                    !$db->fieldExists('payment_method', 'expenses')
+                ) {
                     $this->ensureSchema($db);
                 }
-                $session->set('schema_checked', true);
+                $session->set('schema_checked_v3', true);
             } catch (\Throwable $me) {
                 log_message('error', 'Auto-migration notice: ' . $me->getMessage());
             }
@@ -258,12 +266,14 @@ abstract class BaseController extends Controller
             $db->query("CREATE TABLE IF NOT EXISTS `payments` (
                 `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
                 `payment_no` VARCHAR(50) UNIQUE NOT NULL,
-                `payment_type` ENUM('receipt', 'payment') NOT NULL,
-                `party_type` ENUM('customer', 'vendor') NOT NULL,
-                `party_id` BIGINT UNSIGNED NOT NULL,
-                `amount` DECIMAL(15,2) DEFAULT 0,
                 `payment_date` DATE NOT NULL,
-                `payment_method` VARCHAR(50) DEFAULT 'cash',
+                `type` ENUM('in', 'out') DEFAULT 'in',
+                `customer_id` BIGINT UNSIGNED NULL,
+                `vendor_id` BIGINT UNSIGNED NULL,
+                `sale_id` BIGINT UNSIGNED NULL,
+                `purchase_id` BIGINT UNSIGNED NULL,
+                `amount` DECIMAL(15,2) DEFAULT 0,
+                `payment_method` VARCHAR(50) DEFAULT 'Cash',
                 `reference_no` VARCHAR(100) NULL,
                 `notes` TEXT NULL,
                 `created_by` BIGINT UNSIGNED NULL,
@@ -276,12 +286,12 @@ abstract class BaseController extends Controller
         if (!$db->tableExists('expenses')) {
             $db->query("CREATE TABLE IF NOT EXISTS `expenses` (
                 `id` BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-                `expense_no` VARCHAR(50) UNIQUE NOT NULL,
+                `expense_no` VARCHAR(50) NULL,
+                `expense_date` DATE NOT NULL,
                 `category` VARCHAR(100) NOT NULL,
                 `amount` DECIMAL(15,2) DEFAULT 0,
-                `expense_date` DATE NOT NULL,
+                `payment_method` VARCHAR(50) DEFAULT 'Cash',
                 `branch_id` BIGINT UNSIGNED NULL,
-                `paid_by` VARCHAR(50) DEFAULT 'cash',
                 `reference_no` VARCHAR(100) NULL,
                 `notes` TEXT NULL,
                 `created_by` BIGINT UNSIGNED NULL,
@@ -402,6 +412,53 @@ abstract class BaseController extends Controller
             }
             if (!$db->fieldExists('invoice_footer', 'company_settings')) {
                 $db->query("ALTER TABLE `company_settings` ADD `invoice_footer` TEXT NULL");
+            }
+        }
+
+        // Payments table columns
+        if ($db->tableExists('payments')) {
+            if (!$db->fieldExists('customer_id', 'payments')) {
+                $db->query("ALTER TABLE `payments` ADD `customer_id` BIGINT UNSIGNED NULL AFTER `payment_date`");
+            }
+            if (!$db->fieldExists('vendor_id', 'payments')) {
+                $db->query("ALTER TABLE `payments` ADD `vendor_id` BIGINT UNSIGNED NULL AFTER `customer_id`");
+            }
+            if (!$db->fieldExists('sale_id', 'payments')) {
+                $db->query("ALTER TABLE `payments` ADD `sale_id` BIGINT UNSIGNED NULL AFTER `vendor_id`");
+            }
+            if (!$db->fieldExists('purchase_id', 'payments')) {
+                $db->query("ALTER TABLE `payments` ADD `purchase_id` BIGINT UNSIGNED NULL AFTER `sale_id`");
+            }
+            if (!$db->fieldExists('type', 'payments')) {
+                $db->query("ALTER TABLE `payments` ADD `type` ENUM('in', 'out') DEFAULT 'in' AFTER `payment_date`");
+            }
+            if (!$db->fieldExists('payment_method', 'payments')) {
+                $db->query("ALTER TABLE `payments` ADD `payment_method` VARCHAR(50) DEFAULT 'Cash' AFTER `amount`");
+            }
+            if (!$db->fieldExists('payment_date', 'payments')) {
+                $db->query("ALTER TABLE `payments` ADD `payment_date` DATE NOT NULL AFTER `payment_no`");
+            }
+            if ($db->fieldExists('party_type', 'payments') && $db->fieldExists('party_id', 'payments')) {
+                try {
+                    $db->query("UPDATE `payments` SET `customer_id` = `party_id`, `type` = 'in' WHERE `customer_id` IS NULL AND `party_type` = 'customer'");
+                    $db->query("UPDATE `payments` SET `vendor_id` = `party_id`, `type` = 'out' WHERE `vendor_id` IS NULL AND `party_type` = 'vendor'");
+                } catch (\Throwable $e) {}
+            }
+        }
+
+        // Expenses table columns
+        if ($db->tableExists('expenses')) {
+            if (!$db->fieldExists('payment_method', 'expenses')) {
+                if ($db->fieldExists('paid_by', 'expenses')) {
+                    $db->query("ALTER TABLE `expenses` CHANGE `paid_by` `payment_method` VARCHAR(50) DEFAULT 'Cash'");
+                } else {
+                    $db->query("ALTER TABLE `expenses` ADD `payment_method` VARCHAR(50) DEFAULT 'Cash' AFTER `amount`");
+                }
+            }
+            if ($db->fieldExists('expense_no', 'expenses')) {
+                try {
+                    $db->query("ALTER TABLE `expenses` MODIFY `expense_no` VARCHAR(50) NULL");
+                } catch (\Throwable $e) {}
             }
         }
 
