@@ -197,5 +197,13 @@ class Database extends Config
         if (ENVIRONMENT === 'testing') {
             $this->defaultGroup = 'tests';
         }
+
+        // Enable SSL for cloud databases (like TiDB Cloud / Aiven)
+        if (env('database.default.encrypt') || (isset($this->default['hostname']) && str_contains($this->default['hostname'], 'tidbcloud.com'))) {
+            $this->default['encrypt'] = [
+                'ssl_verify' => false,
+                'ssl_ca'     => file_exists('/etc/ssl/certs/ca-certificates.crt') ? '/etc/ssl/certs/ca-certificates.crt' : null,
+            ];
+        }
     }
 }
