@@ -21,17 +21,9 @@ class UserModel extends Model
     protected $updatedField  = 'updated_at';
     protected $deletedField  = 'deleted_at';
 
-    protected $validationRules = [
-        'name'     => 'required|min_length[2]|max_length[150]',
-        'email'    => 'required|valid_email|is_unique[users.email,id,{id}]',
-        'role_id'  => 'required|integer',
-    ];
-
-    protected $validationMessages = [
-        'email' => [
-            'is_unique' => 'This email address is already registered.',
-        ],
-    ];
+    protected $skipValidation = true;
+    protected $validationRules = [];
+    protected $validationMessages = [];
 
     /**
      * Get user with role info
@@ -39,7 +31,7 @@ class UserModel extends Model
     public function getUserWithRole(int $id)
     {
         return $this->select('users.*, roles.name as role_name, roles.display_name as role_display_name')
-                    ->join('roles', 'roles.id = users.role_id')
+                    ->join('roles', 'roles.id = users.role_id', 'left')
                     ->find($id);
     }
 
@@ -48,8 +40,8 @@ class UserModel extends Model
      */
     public function getAllWithRelations()
     {
-        return $this->select('users.*, roles.display_name as role_display_name, branches.name as branch_name')
-                    ->join('roles', 'roles.id = users.role_id')
+        return $this->select('users.*, roles.name as role_name, roles.display_name as role_display_name, branches.name as branch_name')
+                    ->join('roles', 'roles.id = users.role_id', 'left')
                     ->join('branches', 'branches.id = users.branch_id', 'left')
                     ->orderBy('users.created_at', 'DESC')
                     ->findAll();

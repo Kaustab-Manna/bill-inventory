@@ -70,7 +70,10 @@ class UserController extends BaseController
             'commission_rate' => $this->request->getPost('commission_rate') ?: 0.00,
         ];
 
-        $id = $this->userModel->insert($userData);
+        $id = $this->userModel->skipValidation(true)->insert($userData);
+        if (!$id) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Failed to create user.']);
+        }
         $this->auditModel->logAction('create', 'users', $id, null, $userData);
 
         return $this->response->setJSON(['success' => true, 'message' => 'User created successfully.']);
@@ -81,7 +84,7 @@ class UserController extends BaseController
      */
     public function edit($id)
     {
-        $user = $this->userModel->getUserWithRole($id);
+        $user = $this->userModel->getUserWithRole((int)$id);
         if (!$user) {
             return $this->response->setJSON(['success' => false, 'message' => 'User not found.']);
         }
@@ -93,6 +96,7 @@ class UserController extends BaseController
      */
     public function update($id)
     {
+        $id = (int)$id;
         $user = $this->userModel->find($id);
         if (!$user) {
             return $this->response->setJSON(['success' => false, 'message' => 'User not found.']);
@@ -115,11 +119,16 @@ class UserController extends BaseController
             return $this->response->setJSON(['success' => false, 'errors' => $this->validator->getErrors()]);
         }
 
+        $password = $this->request->getPost('password');
+        if (!empty($password) && strlen($password) < 6) {
+            return $this->response->setJSON(['success' => false, 'errors' => ['password' => 'Password must be at least 6 characters long.']]);
+        }
+
         $oldData = (array)$user;
         $userData = [
             'name'      => $this->request->getPost('name'),
             'email'     => $this->request->getPost('email'),
-            'phone'     => $this->request->getPost('phone'),
+            'phone'     => $this->request->getPost('phone') ?: null,
             'role_id'   => $this->request->getPost('role_id'),
             'branch_id' => $this->request->getPost('branch_id') ?: null,
             'is_active' => $this->request->getPost('is_active') ?? 1,
@@ -127,13 +136,33 @@ class UserController extends BaseController
         ];
 
         // Update password only if provided
-        $password = $this->request->getPost('password');
         if (!empty($password)) {
             $userData['password'] = password_hash($password, PASSWORD_DEFAULT);
         }
 
-        $this->userModel->update($id, $userData);
+        $updated = $this->userModel->skipValidation(true)->update($id, $userData);
+        if ($updated === false) {
+            return $this->response->setJSON(['success' => false, 'message' => 'Failed to save user changes.']);
+        }
+
         $this->auditModel->logAction('update', 'users', $id, $oldData, $userData);
+
+        // Update session if user edited their own profile
+        $session = session();
+        if ($id == $session->get('user_id')) {
+            $session->set([
+                'user_name'  => $userData['name'],
+                'user_email' => $userData['email'],
+            ]);
+            $role = $this->roleModel->find($userData['role_id']);
+            if ($role) {
+                $session->set([
+                    'role_id'           => $role->id,
+                    'role_name'         => $role->name,
+                    'role_display_name' => $role->display_name,
+                ]);
+            }
+        }
 
         return $this->response->setJSON(['success' => true, 'message' => 'User updated successfully.']);
     }

@@ -186,7 +186,8 @@
         
         <div class="modal-body p-4">
             <form id="userForm">
-                <input type="hidden" name="user_id" id="userId">
+                <input type="hidden" name="id" id="userId">
+                <input type="hidden" name="user_id" id="userIdField">
 
                 <div class="row g-3 mb-3">
                     <div class="col-md-6">
