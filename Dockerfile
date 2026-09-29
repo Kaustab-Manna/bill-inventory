@@ -36,18 +36,9 @@ WORKDIR /var/www/html
 # Copy application source code
 COPY . /var/www/html
 
-# Configure Apache DocumentRoot to point to /var/www/html/public
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
-    && sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
-
-# Configure Apache Directory permissions for mod_rewrite .htaccess
-RUN echo '<Directory /var/www/html/public/>\n\
-    Options Indexes FollowSymLinks\n\
-    AllowOverride All\n\
-    Require all granted\n\
-</Directory>' > /etc/apache2/conf-available/codeigniter.conf \
-    && a2enconf codeigniter
+# Configure Apache VirtualHost and AllowOverride All for mod_rewrite .htaccess
+COPY apache-site.conf /etc/apache2/sites-available/000-default.conf
+RUN sed -i 's/AllowOverride None/AllowOverride All/g' /etc/apache2/apache2.conf
 
 # Install Composer dependencies (production mode)
 RUN composer install --no-dev --optimize-autoloader --no-interaction

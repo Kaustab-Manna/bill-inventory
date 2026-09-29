@@ -11,7 +11,6 @@ $routes->get('/', 'AuthController::login');
 $routes->get('/login', 'AuthController::login');
 $routes->post('/login', 'AuthController::attemptLogin');
 $routes->get('/logout', 'AuthController::logout');
-$routes->get('/setup-database', 'SetupController::index');
 
 // ==================== PROTECTED ROUTES ====================
 $routes->group('', ['filter' => 'auth'], function ($routes) {
