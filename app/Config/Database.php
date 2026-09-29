@@ -191,6 +191,28 @@ class Database extends Config
     {
         parent::__construct();
 
+        // Read environment variables directly to support all deployment styles
+        if ($host = (getenv('database_default_hostname') ?: getenv('DB_HOST') ?: env('database.default.hostname'))) {
+            $this->default['hostname'] = $host;
+        }
+        if ($user = (getenv('database_default_username') ?: getenv('DB_USER') ?: env('database.default.username'))) {
+            $this->default['username'] = $user;
+        }
+        if ($pass = (getenv('database_default_password') ?: getenv('DB_PASS') ?: env('database.default.password'))) {
+            $this->default['password'] = $pass;
+        }
+        if ($db = (getenv('database_default_database') ?: getenv('DB_NAME') ?: env('database.default.database'))) {
+            $this->default['database'] = ($db === 'sys' || empty($db)) ? 'test' : $db;
+        }
+        if ($port = (getenv('database_default_port') ?: getenv('DB_PORT') ?: env('database.default.port'))) {
+            $this->default['port'] = (int) $port;
+        }
+
+        // If database was set to 'sys' (MySQL system schema), override to 'test'
+        if ($this->default['database'] === 'sys') {
+            $this->default['database'] = 'test';
+        }
+
         // Ensure that we always set the database group to 'tests' if
         // we are currently running an automated test suite, so that
         // we don't overwrite live data on accident.
