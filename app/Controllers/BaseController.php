@@ -50,10 +50,10 @@ abstract class BaseController extends Controller
     {
         parent::initController($request, $response, $logger);
 
-        // Ensure all database tables exist automatically on any deployment
+        // Ensure all database tables and extended columns exist automatically on any deployment
         try {
             $db = \Config\Database::connect();
-            if (!$db->tableExists('purchases')) {
+            if (!$db->fieldExists('commission_rate', 'users') || !$db->tableExists('purchases')) {
                 $this->ensureSchema($db);
             }
         } catch (\Throwable $me) {
@@ -352,6 +352,54 @@ abstract class BaseController extends Controller
                 `created_at` DATETIME NULL,
                 `updated_at` DATETIME NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+        }
+
+        // 3. Ensure all extended columns exist across existing tables
+        if ($db->tableExists('users') && !$db->fieldExists('commission_rate', 'users')) {
+            $db->query("ALTER TABLE `users` ADD `commission_rate` DECIMAL(5,2) DEFAULT 0.00 AFTER `is_active`");
+        }
+
+        if ($db->tableExists('sales')) {
+            if (!$db->fieldExists('salesperson_id', 'sales')) {
+                $db->query("ALTER TABLE `sales` ADD `salesperson_id` INT UNSIGNED NULL AFTER `customer_id`");
+            }
+            if (!$db->fieldExists('commission_amount', 'sales')) {
+                $db->query("ALTER TABLE `sales` ADD `commission_amount` DECIMAL(10,2) DEFAULT 0.00 AFTER `paid_amount`");
+            }
+            if (!$db->fieldExists('discount_percent', 'sales')) {
+                $db->query("ALTER TABLE `sales` ADD `discount_percent` DECIMAL(5,2) DEFAULT 0.00 AFTER `tax_amount`");
+            }
+        }
+
+        if ($db->tableExists('quotations') && !$db->fieldExists('discount_percent', 'quotations')) {
+            $db->query("ALTER TABLE `quotations` ADD `discount_percent` DECIMAL(5,2) DEFAULT 0.00 AFTER `tax_amount`");
+        }
+
+        if ($db->tableExists('customers')) {
+            if (!$db->fieldExists('gst_no', 'customers')) {
+                $db->query("ALTER TABLE `customers` ADD `gst_no` VARCHAR(50) NULL");
+            }
+            if (!$db->fieldExists('city', 'customers')) {
+                $db->query("ALTER TABLE `customers` ADD `city` VARCHAR(100) NULL");
+            }
+            if (!$db->fieldExists('state', 'customers')) {
+                $db->query("ALTER TABLE `customers` ADD `state` VARCHAR(100) NULL");
+            }
+            if (!$db->fieldExists('pincode', 'customers')) {
+                $db->query("ALTER TABLE `customers` ADD `pincode` VARCHAR(20) NULL");
+            }
+            if (!$db->fieldExists('credit_limit', 'customers')) {
+                $db->query("ALTER TABLE `customers` ADD `credit_limit` DECIMAL(15,2) DEFAULT 0.00");
+            }
+        }
+
+        if ($db->tableExists('company_settings')) {
+            if (!$db->fieldExists('invoice_prefix', 'company_settings')) {
+                $db->query("ALTER TABLE `company_settings` ADD `invoice_prefix` VARCHAR(20) NULL DEFAULT 'INV-'");
+            }
+            if (!$db->fieldExists('invoice_footer', 'company_settings')) {
+                $db->query("ALTER TABLE `company_settings` ADD `invoice_footer` TEXT NULL");
+            }
         }
 
         // Try seeding if needed

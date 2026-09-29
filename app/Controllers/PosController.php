@@ -51,7 +51,9 @@ class PosController extends BaseController
             'warehouse'    => $selectedWarehouse,
             'warehouses'   => $warehouses,
             'customers'    => $customerModel->where('is_active', 1)->findAll(),
-            'salespersons' => $userModel->where('is_active', 1)->where('commission_rate >', 0)->findAll(),
+            'salespersons' => \Config\Database::connect()->fieldExists('commission_rate', 'users') 
+                                ? $userModel->where('is_active', 1)->where('commission_rate >', 0)->findAll() 
+                                : $userModel->where('is_active', 1)->findAll(),
             'products'     => $products
         ];
         return view('pos/index', $data);
