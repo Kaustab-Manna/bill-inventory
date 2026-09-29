@@ -47,8 +47,8 @@
     <!-- Bootstrap JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-    <!-- Core JS -->
-    <script src="<?= base_url('js/app.js') ?>?v=<?= time() ?>"></script>
+    <!-- Core JS (cached) -->
+    <script src="<?= base_url('js/app.js') ?>?v=2.5"></script>
 
     <!-- Flash messages as toasts -->
     <?php if (session()->getFlashdata('success')): ?>
@@ -57,6 +57,20 @@
     <?php if (session()->getFlashdata('error')): ?>
     <script>showToast('<?= esc(session()->getFlashdata('error')) ?>', 'error');</script>
     <?php endif; ?>
+
+    <!-- Instant Page Transition Prefetcher -->
+    <script>
+    document.addEventListener('mouseover', function(e) {
+        const link = e.target.closest('a');
+        if (link && link.href && link.origin === window.location.origin && !link.hasAttribute('data-prefetched') && !link.href.includes('#') && !link.href.includes('delete') && !link.href.includes('logout')) {
+            link.setAttribute('data-prefetched', 'true');
+            const prefetcher = document.createElement('link');
+            prefetcher.rel = 'prefetch';
+            prefetcher.href = link.href;
+            document.head.appendChild(prefetcher);
+        }
+    }, { passive: true });
+    </script>
 
     <?= $this->renderSection('scripts') ?>
 </body>

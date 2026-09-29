@@ -24,8 +24,11 @@ RUN apt-get update && apt-get install -y \
     opcache \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Enable Apache mod_rewrite
-RUN a2enmod rewrite headers
+# Enable Apache modules: rewrite, headers, deflate (Gzip), expires (Browser cache)
+RUN a2enmod rewrite headers deflate expires
+
+# Configure OPcache for maximum performance
+RUN printf "opcache.enable=1\nopcache.enable_cli=0\nopcache.memory_consumption=128\nopcache.interned_strings_buffer=8\nopcache.max_accelerated_files=10000\nopcache.revalidate_freq=60\nopcache.fast_shutdown=1\n" > /usr/local/etc/php/conf.d/opcache-recommended.ini
 
 # Install Composer
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer

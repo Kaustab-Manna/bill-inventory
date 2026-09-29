@@ -50,17 +50,20 @@ abstract class BaseController extends Controller
     {
         parent::initController($request, $response, $logger);
 
-        // Ensure all database tables and extended columns exist automatically on any deployment
-        try {
-            $db = \Config\Database::connect();
-            if (!$db->fieldExists('commission_rate', 'users') || !$db->tableExists('purchases')) {
-                $this->ensureSchema($db);
-            }
-        } catch (\Throwable $me) {
-            log_message('error', 'Auto-migration notice: ' . $me->getMessage());
-        }
-
         $session = \Config\Services::session();
+
+        // Check and ensure database tables at most once per session to maximize speed
+        if (!$session->get('schema_checked')) {
+            try {
+                $db = \Config\Database::connect();
+                if (!$db->fieldExists('commission_rate', 'users') || !$db->tableExists('purchases')) {
+                    $this->ensureSchema($db);
+                }
+                $session->set('schema_checked', true);
+            } catch (\Throwable $me) {
+                log_message('error', 'Auto-migration notice: ' . $me->getMessage());
+            }
+        }
         
         if ($session->get('isLoggedIn')) {
             $this->generateSystemAlerts($session);
