@@ -1,0 +1,50 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4F46E5"/>
+      <stop offset="50%" stop-color="#6366F1"/>
+      <stop offset="100%" stop-color="#8B5CF6"/>
+    </linearGradient>
+    <linearGradient id="boxTop" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="100%" stop-color="#E0E7FF"/>
+    </linearGradient>
+    <linearGradient id="boxLeft" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#C7D2FE"/>
+      <stop offset="100%" stop-color="#818CF8"/>
+    </linearGradient>
+    <linearGradient id="boxRight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#A5B4FC"/>
+      <stop offset="100%" stop-color="#6366F1"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- Background rounded badge -->
+  <rect width="64" height="64" rx="16" fill="url(#bgGrad)"/>
+  
+  <!-- Subtle inner border highlight -->
+  <rect x="1" y="1" width="62" height="62" rx="15" fill="none" stroke="#FFFFFF" stroke-opacity="0.2" stroke-width="1.5"/>
+
+  <!-- 3D Inventory Package Isometric Box with Shadow -->
+  <g filter="url(#shadow)" transform="translate(0, 1)">
+    <!-- Top Face -->
+    <polygon points="32,14 49,23.5 32,33 15,23.5" fill="url(#boxTop)"/>
+    
+    <!-- Left Face -->
+    <polygon points="15,23.5 32,33 32,49 15,39.5" fill="url(#boxLeft)"/>
+    
+    <!-- Right Face -->
+    <polygon points="32,33 49,23.5 49,39.5 32,49" fill="url(#boxRight)"/>
+    
+    <!-- Package Tape Accent -->
+    <polygon points="30,15 34,17.2 34,48 30,46" fill="#10B981" opacity="0.95"/>
+    <polygon points="19,25.7 32,33 32,35.5 19,28" fill="#059669" opacity="0.9"/>
+    <polygon points="32,33 45,25.7 45,28 32,35.5" fill="#10B981" opacity="0.9"/>
+  </g>
+
+  <!-- Small Status Indicator Dot (Emerald Green) -->
+  <circle cx="50" cy="14" r="4.5" fill="#10B981" stroke="#FFFFFF" stroke-width="1.5"/>
+</svg>

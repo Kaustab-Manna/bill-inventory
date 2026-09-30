@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><?= esc($pageTitle ?? 'POS Terminal') ?></title>
+    <title><?= esc($pageTitle ?? 'POS Terminal') ?> | Inventory System</title>
+    <link rel="icon" type="image/svg+xml" href="<?= base_url('favicon.svg') ?>">
+    <link rel="alternate icon" type="image/png" href="<?= base_url('favicon.png') ?>">
+    <link rel="apple-touch-icon" href="<?= base_url('favicon.png') ?>">
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
@@ -176,7 +179,7 @@
 
     <header class="pos-header">
         <a href="<?= base_url('dashboard') ?>" class="header-brand">
-            <i class="fas fa-box-open"></i> BillInventory POS
+            <img src="<?= base_url('favicon.svg') ?>" style="width:24px; height:24px; border-radius:5px;" alt="Logo"> Inventory System POS
         </a>
         <div style="display:flex; gap: 15px; align-items:center;">
             <div style="font-size: 0.9rem; color: var(--text-muted);">

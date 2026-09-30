@@ -3,8 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Inventory & Billing Management Software - Manage your business efficiently">
-    <title><?= esc($pageTitle ?? 'Dashboard') ?> | MallInventory Pro</title>
+    <meta name="description" content="Inventory System - Inventory & Billing Management Software">
+    <title><?= esc($pageTitle ?? 'Dashboard') ?> | Inventory System</title>
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="<?= base_url('favicon.svg') ?>">
+    <link rel="alternate icon" type="image/png" href="<?= base_url('favicon.png') ?>">
+    <link rel="apple-touch-icon" href="<?= base_url('favicon.png') ?>">
 
     <!-- High-Performance DNS & CDN Preconnect -->
     <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">

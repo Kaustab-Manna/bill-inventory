@@ -17,7 +17,7 @@ class BackupController extends BaseController
         $db = \Config\Database::connect();
         
         $tables = $db->listTables();
-        $sql = "-- MallInventory Pro Database Backup\n";
+        $sql = "-- Inventory System Database Backup\n";
         $sql .= "-- Generated: " . date('Y-m-d H:i:s') . "\n\n";
 
         foreach ($tables as $table) {
@@ -44,7 +44,7 @@ class BackupController extends BaseController
             $sql .= "\n\n";
         }
 
-        $filename = 'backup_mallinventory_' . date('Y-m-d_H-i-s') . '.sql';
+        $filename = 'backup_inventory_system_' . date('Y-m-d_H-i-s') . '.sql';
         
         return $this->response->download($filename, $sql);
     }

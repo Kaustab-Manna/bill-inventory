@@ -3,8 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Login to BillInventory Pro - Inventory & Billing Management Software">
-    <title>Login | BillInventory Pro</title>
+    <meta name="description" content="Login to Inventory System - Inventory & Billing Management Software">
+    <title>Login | Inventory System</title>
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="<?= base_url('favicon.svg') ?>">
+    <link rel="alternate icon" type="image/png" href="<?= base_url('favicon.png') ?>">
+    <link rel="apple-touch-icon" href="<?= base_url('favicon.png') ?>">
     <link rel="dns-prefetch" href="//fonts.googleapis.com">
     <link rel="dns-prefetch" href="//fonts.gstatic.com">
     <link rel="dns-prefetch" href="//cdnjs.cloudflare.com">
@@ -88,8 +92,10 @@
         <div class="auth-card animate-fade-in-up">
             <!-- Logo -->
             <div class="auth-logo">
-                <div class="logo-icon"><i class="fas fa-boxes-stacked"></i></div>
-                <h2>BillInventory Pro</h2>
+                <div class="logo-icon" style="background: transparent; box-shadow: none;">
+                    <img src="<?= base_url('favicon.svg') ?>" style="width:48px; height:48px; border-radius:12px;" alt="Logo">
+                </div>
+                <h2>Inventory System</h2>
                 <p>Sign in to manage your business</p>
             </div>
 

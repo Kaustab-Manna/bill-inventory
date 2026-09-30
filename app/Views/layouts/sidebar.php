@@ -7,8 +7,10 @@ $segment2 = $uri->getSegment(2);
 <aside class="sidebar" id="sidebar">
     <!-- Brand -->
     <div class="sidebar-brand">
-        <div class="brand-icon">M</div>
-        <span class="brand-text">MallInventory</span>
+        <div class="brand-icon">
+            <img src="<?= base_url('favicon.svg') ?>" alt="Logo" style="width: 24px; height: 24px; border-radius: 6px;">
+        </div>
+        <span class="brand-text">Inventory System</span>
     </div>
 
     <!-- Navigation -->

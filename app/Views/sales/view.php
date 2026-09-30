@@ -12,7 +12,7 @@
                         <div class="text-muted fs-5">#<?= esc($sale->invoice_no) ?></div>
                     </div>
                     <div class="text-end">
-                        <h4 class="mb-1">BillInventory</h4>
+                        <h4 class="mb-1">Inventory System</h4>
                         <div class="text-muted">
                             Warehouse: <?= esc($sale->warehouse_name ?? 'N/A') ?>
                         </div>

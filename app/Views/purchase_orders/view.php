@@ -71,7 +71,7 @@
                         <div class="fs-5">#<?= esc($po->po_no) ?></div>
                     </div>
                     <div class="text-end">
-                        <h4 class="mb-1">BillInventory</h4>
+                        <h4 class="mb-1">Inventory System</h4>
                         <div>
                             Deliver To Warehouse: <?= esc($po->warehouse_name ?? 'N/A') ?>
                         </div>
