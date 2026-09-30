@@ -155,22 +155,28 @@ class PosController extends BaseController
             }
         }
 
+        $userId = session()->get('user_id') ?? 1;
         $saleData = [
-            'invoice_no' => 'INV-' . strtoupper(uniqid()),
-            'customer_id' => !empty($post['customer_id']) ? $post['customer_id'] : null,
-            'salesperson_id' => $salespersonId,
-            'warehouse_id' => $warehouseId,
-            'subtotal' => $subtotal,
-            'tax_amount' => max(0, (float)($post['tax_amount'] ?? 0)),
-            'discount' => $discount,
-            'total_amount' => $totalAmount,
-            'paid_amount' => $paidAmount,
-            'commission_amount' => $commissionAmount,
-            'payment_method' => $post['payment_method'],
-            'status' => ($paidAmount >= $totalAmount) ? 'paid' : (($paidAmount > 0) ? 'partial' : 'unpaid'),
-            'sale_date' => date('Y-m-d H:i:s'),
-            'created_by' => session()->get('user_id')
+            'invoice_no'     => 'INV-' . strtoupper(uniqid()),
+            'customer_id'    => !empty($post['customer_id']) ? $post['customer_id'] : null,
+            'warehouse_id'   => $warehouseId,
+            'subtotal'       => $subtotal,
+            'tax_amount'     => max(0, (float)($post['tax_amount'] ?? 0)),
+            'discount'       => $discount,
+            'total_amount'   => $totalAmount,
+            'paid_amount'    => $paidAmount,
+            'payment_method' => $post['payment_method'] ?? 'cash',
+            'status'         => ($paidAmount >= $totalAmount) ? 'paid' : (($paidAmount > 0) ? 'partial' : 'unpaid'),
+            'sale_date'      => date('Y-m-d H:i:s'),
+            'created_by'     => $userId
         ];
+
+        if ($this->db->fieldExists('salesperson_id', 'sales')) {
+            $saleData['salesperson_id'] = $salespersonId;
+        }
+        if ($this->db->fieldExists('commission_amount', 'sales')) {
+            $saleData['commission_amount'] = $commissionAmount;
+        }
 
         $saleId = $saleModel->insert($saleData);
 

@@ -170,30 +170,96 @@
         margin-top: 15px;
     }
 
-    /* Modal Fixes */
-    .modal {
+    /* Modal Styles */
+    .modal-overlay {
         display: none;
         position: fixed;
-        z-index: 1050;
-        left: 0; top: 0; width: 100%; height: 100%;
-        background-color: rgba(0,0,0,0.7);
-        align-items: center; justify-content: center;
-        backdrop-filter: blur(4px);
+        inset: 0;
+        width: 100vw;
+        height: 100vh;
+        background: rgba(15, 23, 42, 0.75);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
+        z-index: 99999;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        transition: opacity 0.2s ease, visibility 0.2s ease;
     }
-    .modal.show { display: flex !important; }
-    .modal-content {
-        background: var(--bg-card);
-        border: 1px solid var(--border-color);
-        border-radius: 12px;
-        width: 100%; max-width: 500px;
-        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        color: var(--text-primary);
+    .modal-overlay.active, .modal-overlay.show {
+        display: flex !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        pointer-events: all !important;
     }
-    .modal-header { padding: 20px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-    .modal-body { padding: 20px; }
-    .modal-footer { padding: 20px; border-top: 1px solid var(--border-color); display: flex; justify-content: flex-end; gap: 10px; }
-    .close-modal { cursor: pointer; font-size: 1.5rem; color: var(--text-muted); }
-    .close-modal:hover { color: var(--danger); }
+    .modal-overlay .modal {
+        background: var(--bg-card, #1e293b);
+        border: 1px solid var(--border-color, #334155);
+        border-radius: 16px;
+        width: 100%;
+        max-width: 520px;
+        max-height: 90vh;
+        overflow-y: auto;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        transform: scale(0.96);
+        transition: transform 0.2s ease;
+        display: flex;
+        flex-direction: column;
+    }
+    .modal-overlay.active .modal, .modal-overlay.show .modal {
+        transform: scale(1) !important;
+    }
+    .modal-header {
+        padding: 18px 24px;
+        border-bottom: 1px solid var(--border-color, #334155);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .modal-header h3 {
+        margin: 0;
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: var(--text-main, #f8fafc);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .modal-close {
+        background: transparent;
+        border: none;
+        color: var(--text-muted, #94a3b8);
+        font-size: 1.25rem;
+        width: 32px;
+        height: 32px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .modal-close:hover {
+        background: rgba(239, 68, 68, 0.15);
+        color: #ef4444;
+    }
+    .modal-body {
+        padding: 24px;
+    }
+    .modal-footer {
+        padding: 16px 24px;
+        border-top: 1px solid var(--border-color, #334155);
+        background: var(--bg-body, #0f172a);
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+        gap: 12px;
+        border-bottom-left-radius: 16px;
+        border-bottom-right-radius: 16px;
+    }
 </style>
 
 <div class="pos-wrapper">
@@ -212,10 +278,13 @@
                     $isOOS = ($avail <= 0);
                 ?>
                 <div class="product-card <?= $isOOS ? 'out-of-stock' : '' ?>" 
+                     data-id="<?= $p->id ?>"
+                     data-title="<?= esc($p->name) ?>"
                      data-name="<?= strtolower(esc($p->name)) ?>" 
-                     data-sku="<?= strtolower(esc($p->sku)) ?>" 
+                     data-sku="<?= strtolower(esc($p->sku ?? '')) ?>" 
+                     data-price="<?= (float)$p->selling_price ?>"
                      data-stock="<?= $avail ?>"
-                     onclick="addToCart(<?= $p->id ?>, '<?= esc(addslashes($p->name)) ?>', <?= $p->selling_price ?>, <?= $avail ?>)">
+                     onclick="addToCartFromElement(this)">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; gap:8px;">
                         <div class="product-name" style="margin:0;"><?= esc($p->name) ?></div>
                         <?php if($isOOS): ?>
@@ -224,7 +293,7 @@
                             <span class="badge" style="background: rgba(16, 185, 129, 0.15); color: #10b981; font-size: 0.72rem; font-weight: 600; padding: 2px 6px; border-radius: 4px; white-space: nowrap;"><i class="fas fa-boxes"></i> <?= $avail ?> <?= esc($p->unit ?? 'pcs') ?></span>
                         <?php endif; ?>
                     </div>
-                    <div class="product-sku"><?= esc($p->sku) ?></div>
+                    <div class="product-sku"><?= esc($p->sku ?? '') ?></div>
                     <div class="product-price">₹<?= number_format($p->selling_price, 2) ?></div>
                 </div>
             <?php endforeach; ?>
@@ -262,7 +331,7 @@
                         <option value="<?= $c->id ?>"><?= esc($c->name) ?></option>
                     <?php endforeach; ?>
                 </select>
-                <button class="btn btn-outline" style="padding:0 14px;" onclick="openModal('customerModal')" title="Add Customer">
+                <button type="button" class="btn btn-outline" style="padding:0 14px;" onclick="openModal('customerModal')" title="Add Customer">
                     <i class="fas fa-user-plus"></i>
                 </button>
             </div>
@@ -287,14 +356,14 @@
             </div>
             <div class="summary-row">
                 <span>Discount</span>
-                <input type="number" id="discountInput" class="form-control" style="width:80px; height:28px; padding:4px; text-align:right;" value="0" min="0" onchange="renderCart()">
+                <input type="number" id="discountInput" class="form-control" style="width:80px; height:28px; padding:4px; text-align:right;" value="0" min="0" oninput="renderCart()" onchange="renderCart()">
             </div>
             <div class="summary-row total">
                 <span>Total</span>
                 <span id="summaryTotal">₹0.00</span>
             </div>
 
-            <button class="btn btn-success checkout-btn" onclick="openModal('checkoutModal')" id="checkoutBtn" disabled>
+            <button type="button" class="btn btn-success checkout-btn" onclick="openCheckoutModal()" id="checkoutBtn">
                 <i class="fas fa-credit-card"></i> Pay Now
             </button>
         </div>
@@ -302,91 +371,103 @@
 </div>
 
 <!-- Add Customer Modal -->
-<div id="customerModal" class="modal">
-    <div class="modal-content">
+<div class="modal-overlay" id="customerModal">
+    <div class="modal" style="max-width: 480px;">
         <div class="modal-header">
-            <h3>Add New Customer</h3>
-            <span class="close-modal" onclick="closeModal('customerModal')">&times;</span>
+            <h3><i class="fas fa-user-plus" style="color:var(--primary);"></i> Add New Customer</h3>
+            <button type="button" class="modal-close" onclick="closeModal('customerModal')"><i class="fas fa-times"></i></button>
         </div>
         <div class="modal-body">
             <form id="customerForm">
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label class="form-label" style="display:block; margin-bottom:5px; font-size:0.9rem;">Name *</label>
-                    <input type="text" name="name" class="form-control" required>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label" style="display:block; margin-bottom:6px; font-size:0.9rem; font-weight:600;">Customer Name *</label>
+                    <input type="text" name="name" class="form-control" placeholder="Enter customer name" required>
                 </div>
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label class="form-label" style="display:block; margin-bottom:5px; font-size:0.9rem;">Phone</label>
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label" style="display:block; margin-bottom:6px; font-size:0.9rem; font-weight:600;">Phone Number</label>
                     <input type="tel" name="phone" class="form-control" placeholder="10-digit mobile number" pattern="[0-9]{10}" title="Please enter a valid 10-digit mobile number" maxlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
                 </div>
-                <div class="form-group" style="margin-bottom: 15px;">
-                    <label class="form-label" style="display:block; margin-bottom:5px; font-size:0.9rem;">Email</label>
-                    <input type="email" name="email" class="form-control">
+                <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-label" style="display:block; margin-bottom:6px; font-size:0.9rem; font-weight:600;">Email Address</label>
+                    <input type="email" name="email" class="form-control" placeholder="Optional email address">
                 </div>
             </form>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-outline" onclick="closeModal('customerModal')">Cancel</button>
-            <button class="btn btn-primary" onclick="saveCustomer()">Save Customer</button>
+            <button type="button" class="btn btn-outline" onclick="closeModal('customerModal')">Cancel</button>
+            <button type="button" class="btn btn-primary" onclick="saveCustomer()">
+                <i class="fas fa-save"></i> Save Customer
+            </button>
         </div>
     </div>
 </div>
 
 <!-- Checkout Modal -->
-<div id="checkoutModal" class="modal">
-    <div class="modal-content">
+<div class="modal-overlay" id="checkoutModal">
+    <div class="modal" style="max-width: 520px;">
         <div class="modal-header">
-            <h3>Complete Payment</h3>
-            <span class="close-modal" onclick="closeModal('checkoutModal')">&times;</span>
+            <h3><i class="fas fa-cash-register" style="color:var(--primary);"></i> Complete Payment</h3>
+            <button type="button" class="modal-close" onclick="closeModal('checkoutModal')"><i class="fas fa-times"></i></button>
         </div>
         <div class="modal-body">
-            <div style="text-align:center; margin-bottom: 20px;">
-                <div style="font-size:0.9rem; color:var(--text-muted);">Amount Due</div>
-                <div style="font-size:2.5rem; font-weight:700; color:var(--primary);" id="checkoutTotalDisplay">₹0.00</div>
+            <div style="text-align:center; margin-bottom: 20px; padding: 18px; background: var(--bg-body); border-radius: 12px; border: 1px solid var(--border-color);">
+                <div style="font-size:0.9rem; color:var(--text-muted); font-weight: 500;">Amount Due</div>
+                <div style="font-size:2.6rem; font-weight:800; color:var(--primary); line-height: 1.2;" id="checkoutTotalDisplay">₹0.00</div>
             </div>
 
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label class="form-label" style="display:block; margin-bottom:5px; font-size:0.9rem;">Payment Method</label>
-                <select id="paymentMethod" class="form-control">
-                    <option value="cash">Cash</option>
-                    <option value="card">Credit Card</option>
-                    <option value="upi">UPI</option>
-                    <option value="bank_transfer">Bank Transfer</option>
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label class="form-label" style="display:block; margin-bottom:6px; font-size:0.9rem; font-weight:600;">Payment Method</label>
+                <select id="paymentMethod" class="form-control" style="height: 44px; font-size: 1rem;">
+                    <option value="cash">💵 Cash</option>
+                    <option value="card">💳 Credit / Debit Card</option>
+                    <option value="upi">📱 UPI / QR Code</option>
+                    <option value="bank_transfer">🏦 Bank Transfer</option>
                 </select>
             </div>
 
-            <div class="form-group" style="margin-bottom: 15px;">
-                <label class="form-label" style="display:block; margin-bottom:5px; font-size:0.9rem;">Amount Paid</label>
-                <input type="number" id="amountPaid" class="form-control" style="font-size:1.2rem; font-weight:bold;" step="0.01" min="0">
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label class="form-label" style="display:block; margin-bottom:6px; font-size:0.9rem; font-weight:600;">Amount Paid</label>
+                <div style="position:relative;">
+                    <span style="position:absolute; left:14px; top:50%; transform:translateY(-50%); font-weight:700; color:var(--text-muted); font-size:1.1rem;">₹</span>
+                    <input type="number" id="amountPaid" class="form-control" style="padding-left:32px; font-size:1.25rem; font-weight:700; height:46px;" step="0.01" min="0" placeholder="0.00">
+                </div>
             </div>
             
-            <div id="changeContainer" style="display:none; padding:15px; background:var(--bg-body); border-radius:8px; margin-top:10px;">
-                <div style="display:flex; justify-content:space-between; font-weight:600;">
-                    <span>Change Due:</span>
-                    <span id="changeAmount" style="color:var(--success);">₹0.00</span>
+            <div id="changeContainer" style="display:none; padding:15px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.35); border-radius:10px; margin-top:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; font-weight:700;">
+                    <span style="color:var(--text-main);">Change to Return:</span>
+                    <span id="changeAmount" style="color:var(--success); font-size: 1.35rem;">₹0.00</span>
                 </div>
             </div>
         </div>
         <div class="modal-footer">
-            <button class="btn btn-outline" onclick="closeModal('checkoutModal')">Cancel</button>
-            <button class="btn btn-success" onclick="processCheckout()" id="confirmCheckoutBtn">Confirm Sale</button>
+            <button type="button" class="btn btn-outline" onclick="closeModal('checkoutModal')">Cancel</button>
+            <button type="button" class="btn btn-success" onclick="processCheckout()" id="confirmCheckoutBtn" style="min-width: 140px; font-weight: 600; height: 42px;">
+                <i class="fas fa-check-circle"></i> Confirm Sale
+            </button>
         </div>
     </div>
 </div>
 
 <!-- UPI QR Code Modal -->
-<div id="upiModal" class="modal">
-    <div class="modal-content" style="max-width: 350px; text-align: center;">
+<div class="modal-overlay" id="upiModal">
+    <div class="modal" style="max-width: 380px; text-align: center;">
         <div class="modal-header">
-            <h3>Scan to Pay</h3>
-            <span class="close-modal" onclick="closeModal('upiModal'); openModal('checkoutModal');">&times;</span>
+            <h3 style="width:100%; text-align:center;"><i class="fas fa-qrcode" style="color:var(--primary);"></i> Scan to Pay</h3>
+            <button type="button" class="modal-close" onclick="closeModal('upiModal'); openModal('checkoutModal');"><i class="fas fa-times"></i></button>
         </div>
-        <div class="modal-body">
-            <h2 id="upiAmountDisplay" style="color:var(--primary); margin-bottom:15px; font-weight:700;">₹0.00</h2>
-            <img id="upiQrImage" src="" alt="UPI QR Code" style="width: 220px; height: 220px; border-radius: 12px; margin: 0 auto; display: block; border: 1px solid var(--border-color); padding: 10px; background: white;">
-            <p style="margin-top: 15px; font-size: 0.9rem; color: var(--text-muted);">Scan this QR code with any UPI app (GPay, PhonePe, Paytm) to complete the payment.</p>
+        <div class="modal-body" style="padding: 24px;">
+            <div style="font-size:0.9rem; color:var(--text-muted); margin-bottom:4px;">Amount Payable</div>
+            <h2 id="upiAmountDisplay" style="color:var(--primary); margin-bottom:16px; font-weight:800; font-size:2.2rem;">₹0.00</h2>
+            <div style="background:white; display:inline-block; padding:12px; border-radius:16px; box-shadow: 0 4px 12px rgba(0,0,0,0.12);">
+                <img id="upiQrImage" src="" alt="UPI QR Code" style="width: 220px; height: 220px; display: block; border-radius: 8px;">
+            </div>
+            <p style="margin-top: 16px; font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">Scan this QR code with any UPI app (Google Pay, PhonePe, Paytm) to complete the payment.</p>
         </div>
         <div class="modal-footer" style="justify-content: center;">
-            <button class="btn btn-success" style="width: 100%; height: 50px; font-size: 1.1rem;" onclick="submitCheckoutToServer()" id="upiConfirmBtn">Payment Received</button>
+            <button type="button" class="btn btn-success" style="width: 100%; height: 48px; font-size: 1.05rem; font-weight: 600;" onclick="submitCheckoutToServer()" id="upiConfirmBtn">
+                <i class="fas fa-check-circle"></i> Payment Received
+            </button>
         </div>
     </div>
 </div>
@@ -396,21 +477,32 @@
 <?= $this->section('scripts') ?>
 <script>
     function openModal(id) {
-        document.getElementById(id).classList.add('show');
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.add('active');
+            modal.classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
     }
+
     function closeModal(id) {
-        document.getElementById(id).classList.remove('show');
+        const modal = document.getElementById(id);
+        if (modal) {
+            modal.classList.remove('active');
+            modal.classList.remove('show');
+            document.body.style.overflow = '';
+        }
     }
 
     let cart = [];
-    
+
     function filterProducts() {
-        const query = document.getElementById('searchInput').value.toLowerCase();
+        const query = (document.getElementById('searchInput').value || '').toLowerCase().trim();
         const cards = document.querySelectorAll('.product-card');
         
         cards.forEach(card => {
-            const name = card.getAttribute('data-name');
-            const sku = card.getAttribute('data-sku');
+            const name = (card.getAttribute('data-name') || '').toLowerCase();
+            const sku = (card.getAttribute('data-sku') || '').toLowerCase();
             if (name.includes(query) || sku.includes(query)) {
                 card.style.display = 'flex';
             } else {
@@ -419,16 +511,24 @@
         });
     }
 
+    function addToCartFromElement(el) {
+        const id = parseInt(el.getAttribute('data-id'), 10);
+        const name = el.getAttribute('data-title') || el.getAttribute('data-name');
+        const price = parseFloat(el.getAttribute('data-price')) || 0;
+        const stock = parseFloat(el.getAttribute('data-stock')) || 0;
+        addToCart(id, name, price, stock);
+    }
+
     function addToCart(id, name, price, stock) {
         if (stock <= 0) {
-            alert('Cannot add to cart: "' + name + '" is OUT OF STOCK!');
+            notifyMessage('Cannot add to cart: "' + name + '" is OUT OF STOCK!', 'warning');
             return;
         }
 
         const existing = cart.find(item => item.id === id);
         if (existing) {
             if (existing.qty + 1 > stock) {
-                alert('Cannot add more! Only ' + stock + ' available in stock for "' + name + '".');
+                notifyMessage('Cannot add more! Only ' + stock + ' available in stock for "' + name + '".', 'warning');
                 return;
             }
             existing.qty += 1;
@@ -442,7 +542,7 @@
         const item = cart.find(item => item.id === id);
         if (item) {
             if (delta > 0 && item.qty + delta > item.stock) {
-                alert('Maximum stock limit reached! Only ' + item.stock + ' available in stock.');
+                notifyMessage('Maximum stock limit reached! Only ' + item.stock + ' available in stock.', 'warning');
                 return;
             }
             item.qty += delta;
@@ -459,40 +559,50 @@
         renderCart();
     }
 
+    function getCartTotals() {
+        const subtotal = cart.reduce((sum, item) => sum + (item.qty * item.price), 0);
+        const discountInput = document.getElementById('discountInput');
+        const discount = Math.max(0, parseFloat(discountInput ? discountInput.value : 0) || 0);
+        const total = Math.max(0, subtotal - discount);
+        return { subtotal, discount, total };
+    }
+
     function renderCart() {
         const container = document.getElementById('cartItems');
         const checkoutBtn = document.getElementById('checkoutBtn');
+        const { subtotal, total } = getCartTotals();
         
         if (cart.length === 0) {
             container.innerHTML = `
                 <div style="text-align:center; color:var(--text-muted); margin-top: 50px;">
-                    <i class="fas fa-shopping-cart" style="font-size:3rem; opacity:0.2; margin-bottom:15px;"></i>
-                    <p>Cart is empty</p>
+                    <i class="fas fa-shopping-cart" style="font-size:3rem; opacity:0.25; margin-bottom:15px;"></i>
+                    <p style="font-weight:500;">Cart is empty</p>
+                    <small style="opacity:0.7;">Click on any product to start a sale</small>
                 </div>
             `;
             document.getElementById('summarySubtotal').innerText = '₹0.00';
             document.getElementById('summaryTotal').innerText = '₹0.00';
-            checkoutBtn.disabled = true;
+            document.getElementById('checkoutTotalDisplay').innerText = '₹0.00';
+            if (checkoutBtn) {
+                checkoutBtn.style.opacity = '0.65';
+            }
             return;
         }
 
         let html = '';
-        let subtotal = 0;
-
         cart.forEach(item => {
             const itemTotal = item.qty * item.price;
-            subtotal += itemTotal;
             html += `
                 <div class="cart-item">
                     <div class="cart-item-info">
-                        <div class="cart-item-title">${item.name}</div>
+                        <div class="cart-item-title">${escapeHtml(item.name)}</div>
                         <div class="cart-item-price">₹${item.price.toFixed(2)} <span style="font-size:0.75rem; color:var(--text-muted);">(Stock: ${item.stock})</span></div>
                     </div>
                     <div class="cart-item-actions">
-                        <button class="qty-btn" onclick="updateQty(${item.id}, -1)">-</button>
+                        <button type="button" class="qty-btn" onclick="updateQty(${item.id}, -1)">-</button>
                         <span style="width:30px; text-align:center; font-weight:600;">${item.qty}</span>
-                        <button class="qty-btn" onclick="updateQty(${item.id}, 1)">+</button>
-                        <button class="qty-btn" style="color:var(--danger); border-color:var(--danger); margin-left: 8px;" onclick="removeFromCart(${item.id})" title="Remove">
+                        <button type="button" class="qty-btn" onclick="updateQty(${item.id}, 1)">+</button>
+                        <button type="button" class="qty-btn" style="color:var(--danger, #ef4444); border-color:rgba(239,68,68,0.3); margin-left: 8px;" onclick="removeFromCart(${item.id})" title="Remove">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -502,25 +612,27 @@
 
         container.innerHTML = html;
         
-        const discount = Math.max(0, parseFloat(document.getElementById('discountInput').value) || 0);
-        const total = Math.max(0, subtotal - discount);
-
         document.getElementById('summarySubtotal').innerText = '₹' + subtotal.toFixed(2);
         document.getElementById('summaryTotal').innerText = '₹' + total.toFixed(2);
-        
         document.getElementById('checkoutTotalDisplay').innerText = '₹' + total.toFixed(2);
-        document.getElementById('amountPaid').value = total.toFixed(2);
         
-        checkoutBtn.disabled = false;
+        const amountPaidInput = document.getElementById('amountPaid');
+        if (amountPaidInput && (!amountPaidInput.value || parseFloat(amountPaidInput.value) <= 0 || parseFloat(amountPaidInput.dataset.autoFilled) === 1)) {
+            amountPaidInput.value = total.toFixed(2);
+            amountPaidInput.dataset.autoFilled = "1";
+        }
         
-        // Scroll cart to bottom
-        container.scrollTop = container.scrollHeight;
+        if (checkoutBtn) {
+            checkoutBtn.style.opacity = '1';
+        }
+        
+        updateChangeDue();
     }
 
-    document.getElementById('amountPaid').addEventListener('input', function() {
-        const totalStr = document.getElementById('checkoutTotalDisplay').innerText.replace('₹', '');
-        const total = parseFloat(totalStr);
-        const paid = parseFloat(this.value) || 0;
+    function updateChangeDue() {
+        const { total } = getCartTotals();
+        const paidInput = document.getElementById('amountPaid');
+        const paid = parseFloat(paidInput ? paidInput.value : 0) || 0;
         
         const changeContainer = document.getElementById('changeContainer');
         const changeAmount = document.getElementById('changeAmount');
@@ -531,25 +643,43 @@
         } else {
             changeContainer.style.display = 'none';
         }
-    });
+    }
+
+    const amountPaidEl = document.getElementById('amountPaid');
+    if (amountPaidEl) {
+        amountPaidEl.addEventListener('input', function() {
+            this.dataset.autoFilled = "0";
+            updateChangeDue();
+        });
+    }
+
+    function openCheckoutModal() {
+        if (!cart || cart.length === 0) {
+            notifyMessage('Your cart is empty! Please click on products to add them to your order first.', 'warning');
+            return;
+        }
+
+        const whSelect = document.getElementById('warehouse_id');
+        if (!whSelect || !whSelect.value) {
+            notifyMessage('Please select a warehouse before proceeding.', 'warning');
+            return;
+        }
+
+        renderCart();
+        openModal('checkoutModal');
+    }
 
     function processCheckout() {
         const method = document.getElementById('paymentMethod').value;
-        const totalStr = document.getElementById('summaryTotal').innerText.replace('₹', '');
+        const { total } = getCartTotals();
         
         if (method === 'upi') {
-            // Hide checkout modal temporarily
             closeModal('checkoutModal');
+            document.getElementById('upiAmountDisplay').innerText = '₹' + total.toFixed(2);
             
-            // Set Amount Display
-            document.getElementById('upiAmountDisplay').innerText = '₹' + parseFloat(totalStr).toFixed(2);
-            
-            // Generate QR Code using a generic merchant UPI string
-            // In a real app, replace pa=merchant@upi with the actual business UPI ID
-            const upiUrl = encodeURIComponent(`upi://pay?pa=merchant@upi&pn=BillInventory&am=${totalStr}&cu=INR`);
+            const upiUrl = encodeURIComponent(`upi://pay?pa=merchant@upi&pn=BillInventory&am=${total.toFixed(2)}&cu=INR`);
             document.getElementById('upiQrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${upiUrl}`;
             
-            // Open UPI Modal
             openModal('upiModal');
         } else {
             submitCheckoutToServer();
@@ -557,52 +687,77 @@
     }
 
     async function submitCheckoutToServer() {
+        if (!cart || cart.length === 0) {
+            notifyMessage('Cart is empty. Add products first!', 'warning');
+            return;
+        }
+
         const method = document.getElementById('paymentMethod').value;
         const btn = method === 'upi' ? document.getElementById('upiConfirmBtn') : document.getElementById('confirmCheckoutBtn');
         
-        btn.disabled = true;
         const originalText = btn.innerHTML;
+        btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
-        const subtotalStr = document.getElementById('summarySubtotal').innerText.replace('₹', '');
-        const totalStr = document.getElementById('summaryTotal').innerText.replace('₹', '');
+        const { subtotal, discount, total } = getCartTotals();
+        const paidAmountInput = document.getElementById('amountPaid');
+        const paidAmount = parseFloat(paidAmountInput ? paidAmountInput.value : 0) || total;
         
+        const customerSelect = document.getElementById('customer_id');
+        const salespersonSelect = document.getElementById('salesperson_id');
+        const warehouseSelect = document.getElementById('warehouse_id');
+
         const formData = new FormData();
         formData.append('cart', JSON.stringify(cart));
-        formData.append('customer_id', document.getElementById('customer_id').value);
-        formData.append('salesperson_id', document.getElementById('salesperson_id').value);
-        formData.append('warehouse_id', document.getElementById('warehouse_id').value);
-        formData.append('subtotal', subtotalStr);
-        formData.append('tax_amount', 0);
-        formData.append('discount', Math.max(0, parseFloat(document.getElementById('discountInput').value) || 0));
-        formData.append('total_amount', totalStr);
-        formData.append('paid_amount', Math.max(0, parseFloat(document.getElementById('amountPaid').value) || 0));
+        formData.append('customer_id', customerSelect ? customerSelect.value : '');
+        formData.append('salesperson_id', salespersonSelect ? salespersonSelect.value : '');
+        formData.append('warehouse_id', warehouseSelect ? warehouseSelect.value : '');
+        formData.append('subtotal', subtotal.toFixed(2));
+        formData.append('tax_amount', '0');
+        formData.append('discount', discount.toFixed(2));
+        formData.append('total_amount', total.toFixed(2));
+        formData.append('paid_amount', paidAmount.toFixed(2));
         formData.append('payment_method', method);
 
         try {
             const response = await fetch('<?= base_url("pos/checkout") ?>', {
                 method: 'POST',
-                body: formData
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
             });
             const result = await response.json();
             
             if (result.success) {
-                // Open the receipt/bill in a new tab
-                window.open('<?= base_url("sales/view/") ?>' + result.sale_id, '_blank');
+                notifyMessage('Sale completed successfully! Invoice #' + (result.invoice_no || result.sale_id), 'success');
                 
-                // Reset POS
+                // Open the receipt in a new tab if possible
+                const receiptUrl = '<?= base_url("sales/view/") ?>' + result.sale_id;
+                const win = window.open(receiptUrl, '_blank');
+                if (!win) {
+                    notifyMessage('Sale created! <a href="' + receiptUrl + '" target="_blank" style="color:#60a5fa; text-decoration:underline; font-weight:600;">Click here to view receipt</a>', 'info', 8000);
+                }
+                
+                // Reset Cart & Inputs
                 cart = [];
-                document.getElementById('discountInput').value = 0;
-                document.getElementById('amountPaid').value = '';
-                document.getElementById('customer_id').value = "";
+                const discountInput = document.getElementById('discountInput');
+                if (discountInput) discountInput.value = 0;
+                if (paidAmountInput) {
+                    paidAmountInput.value = '';
+                    delete paidAmountInput.dataset.autoFilled;
+                }
+                if (customerSelect) customerSelect.value = "";
+                
                 renderCart();
                 closeModal('checkoutModal');
                 closeModal('upiModal');
             } else {
-                alert(result.message);
+                notifyMessage(result.message || 'Checkout failed. Please check inputs and stock.', 'error');
             }
         } catch (e) {
-            alert('An error occurred during checkout.');
+            console.error('Checkout error:', e);
+            notifyMessage('A network or server error occurred during checkout. Please try again.', 'error');
         }
 
         btn.disabled = false;
@@ -617,25 +772,54 @@
         }
 
         const formData = new FormData(form);
-        const response = await fetch('<?= base_url("pos/add-customer") ?>', {
-            method: 'POST',
-            body: formData
-        });
-        const result = await response.json();
+        try {
+            const response = await fetch('<?= base_url("pos/add-customer") ?>', {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            const result = await response.json();
 
-        if (result.success) {
-            const select = document.getElementById('customer_id');
-            const option = document.createElement('option');
-            option.value = result.customer.id;
-            option.text = result.customer.name;
-            select.add(option);
-            select.value = result.customer.id; // Auto-select
-            
-            closeModal('customerModal');
-            form.reset();
-        } else {
-            alert(result.message);
+            if (result.success) {
+                notifyMessage('Customer added successfully!', 'success');
+                const select = document.getElementById('customer_id');
+                if (select) {
+                    const option = document.createElement('option');
+                    option.value = result.customer.id;
+                    option.text = result.customer.name;
+                    select.add(option);
+                    select.value = result.customer.id;
+                }
+                closeModal('customerModal');
+                form.reset();
+            } else {
+                notifyMessage(result.message || 'Failed to add customer.', 'error');
+            }
+        } catch (err) {
+            console.error('Save customer error:', err);
+            notifyMessage('Could not save customer. Please try again.', 'error');
         }
+    }
+
+    function notifyMessage(message, type = 'info', duration = 4000) {
+        if (typeof showToast === 'function') {
+            showToast(message, type, duration);
+        } else {
+            alert(message);
+        }
+    }
+
+    function escapeHtml(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return (text || '').replace(/[&<>"']/g, m => map[m]);
     }
 </script>
 <?= $this->endSection() ?>

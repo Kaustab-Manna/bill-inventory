@@ -315,6 +315,7 @@ function openModal(id) {
     const overlay = document.getElementById(id);
     if (overlay) {
         overlay.classList.add('active');
+        overlay.classList.add('show');
         document.body.style.overflow = 'hidden';
     }
 }
@@ -323,14 +324,16 @@ function closeModal(id) {
     const overlay = document.getElementById(id);
     if (overlay) {
         overlay.classList.remove('active');
+        overlay.classList.remove('show');
         document.body.style.overflow = '';
     }
 }
 
 // Close modal on overlay click
 document.addEventListener('click', function (e) {
-    if (e.target.classList.contains('modal-overlay') && e.target.classList.contains('active')) {
+    if ((e.target.classList.contains('modal-overlay') || e.target.classList.contains('modal')) && (e.target.classList.contains('active') || e.target.classList.contains('show'))) {
         e.target.classList.remove('active');
+        e.target.classList.remove('show');
         document.body.style.overflow = '';
     }
 });
@@ -338,8 +341,9 @@ document.addEventListener('click', function (e) {
 // Close modal on Escape
 document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
-        document.querySelectorAll('.modal-overlay.active').forEach(modal => {
+        document.querySelectorAll('.modal-overlay.active, .modal-overlay.show, .modal.active, .modal.show').forEach(modal => {
             modal.classList.remove('active');
+            modal.classList.remove('show');
         });
         document.body.style.overflow = '';
     }
