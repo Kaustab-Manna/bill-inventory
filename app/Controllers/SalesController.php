@@ -99,11 +99,17 @@ class SalesController extends BaseController
             $stockMap[$stk->warehouse_id][$stk->product_id] = $avail;
         }
 
+        $products = $productModel
+            ->select('products.*, t.name as tax_name, COALESCE(t.rate, 0) as tax_rate, COALESCE(t.type, "exclusive") as tax_type')
+            ->join('taxes t', 't.id = products.tax_id', 'left')
+            ->where('products.is_active', 1)
+            ->findAll();
+
         $data = [
             'pageTitle'  => 'Create Sale Invoice',
             'customers'  => $customerModel->where('is_active', 1)->findAll(),
             'warehouses' => $warehouseModel->where('is_active', 1)->findAll(),
-            'products'   => $productModel->where('is_active', 1)->findAll(),
+            'products'   => $products,
             'stockMap'   => json_encode($stockMap)
         ];
         return view('sales/create', $data);
@@ -125,12 +131,19 @@ class SalesController extends BaseController
         $stockModel = new StockModel();
         $productModel = new ProductModel();
 
-        // 1. Strict Stock and Quantity Validation before touching database
+        // 1. Strict Stock, Quantity, and Tax Calculation before database operations
+        $itemsData = [];
+        $calculatedTaxTotal = 0;
+        $calculatedSubtotal = 0;
+
         for ($i = 0; $i < count($post['product_id']); $i++) {
             $qty = (float)$post['quantity'][$i];
             $price = (float)($post['unit_price'][$i] ?? 0);
             $productId = (int)$post['product_id'][$i];
-            $product = $productModel->find($productId);
+            
+            $product = $productModel->select('products.*, t.rate as tax_rate, t.type as tax_type, t.name as tax_name')
+                                    ->join('taxes t', 't.id = products.tax_id', 'left')
+                                    ->find($productId);
             $productName = $product ? $product->name : ('Product #' . $productId);
 
             if ($qty <= 0) {
@@ -150,27 +163,69 @@ class SalesController extends BaseController
             if ($qty > $availableStock) {
                 return redirect()->back()->withInput()->with('error', "Cannot complete sale: Insufficient stock for '{$productName}'. Available: {$availableStock}, Requested: {$qty}.");
             }
+
+            // Calculate item tax
+            $itemSubtotal = $price * $qty;
+            $taxRate = (float)($product->tax_rate ?? 0);
+            $taxType = strtolower($product->tax_type ?? 'exclusive');
+
+            $itemTax = 0;
+            $itemTotal = $itemSubtotal;
+            if ($taxRate > 0) {
+                if ($taxType === 'inclusive') {
+                    $itemTax = $itemSubtotal - ($itemSubtotal / (1 + ($taxRate / 100)));
+                    $itemTotal = $itemSubtotal;
+                } else {
+                    $itemTax = ($itemSubtotal * $taxRate) / 100;
+                    $itemTotal = $itemSubtotal + $itemTax;
+                }
+            }
+
+            $calculatedTaxTotal += $itemTax;
+            $calculatedSubtotal += $itemSubtotal;
+
+            $itemsData[] = [
+                'product_id' => $productId,
+                'quantity' => $qty,
+                'unit_price' => $price,
+                'subtotal' => round($itemSubtotal, 2),
+                'tax_amount' => round($itemTax, 2),
+                'total' => round($itemTotal, 2)
+            ];
         }
 
         $this->db->transStart();
 
-        $paidAmount = max(0, (float)($post['paid_amount'] ?? 0));
-        $totalAmount = max(0, (float)$post['total_amount']);
-        $subtotal = max(0, (float)$post['subtotal']);
+        $subtotal = max(0, (float)($post['subtotal'] ?? $calculatedSubtotal));
+        if ($subtotal <= 0) {
+            $subtotal = $calculatedSubtotal;
+        }
+
+        $taxAmount = isset($post['tax_amount']) && (float)$post['tax_amount'] > 0 
+            ? (float)$post['tax_amount'] 
+            : $calculatedTaxTotal;
+
         $discountPercent = max(0, min(100, (float)($post['discount_percent'] ?? 0)));
         $discount = max(0, (float)($post['discount'] ?? 0));
-        $status = ($paidAmount >= $totalAmount) ? 'paid' : (($paidAmount > 0) ? 'partial' : 'unpaid');
+        
+        $totalAmount = (float)($post['total_amount'] ?? 0);
+        if ($totalAmount <= 0) {
+            $totalAmount = max(0, $subtotal + $taxAmount - $discount);
+        }
+
+        $paidAmount = max(0, (float)($post['paid_amount'] ?? 0));
+        $status = ($paidAmount >= $totalAmount && $totalAmount > 0) ? 'paid' : (($paidAmount > 0) ? 'partial' : 'unpaid');
 
         $saleData = [
             'invoice_no' => 'INV-' . strtoupper(uniqid()),
             'customer_id' => $post['customer_id'] ?: null,
             'warehouse_id' => $warehouseId,
-            'subtotal' => $subtotal,
-            'tax_amount' => 0, 
+            'subtotal' => round($subtotal, 2),
+            'tax_amount' => round($taxAmount, 2),
             'discount_percent' => $discountPercent,
-            'discount' => $discount,
-            'total_amount' => $totalAmount,
-            'paid_amount' => $paidAmount,
+            'discount' => round($discount, 2),
+            'total_amount' => round($totalAmount, 2),
+            'paid_amount' => round($paidAmount, 2),
             'payment_method' => $post['payment_method'] ?? 'cash',
             'status' => $status,
             'sale_date' => $post['sale_date'],
@@ -180,27 +235,16 @@ class SalesController extends BaseController
         $saleId = $this->saleModel->insert($saleData);
 
         $items = [];
-        for ($i = 0; $i < count($post['product_id']); $i++) {
-            $qty = (float)$post['quantity'][$i];
-            $price = (float)$post['unit_price'][$i];
-            $productId = (int)$post['product_id'][$i];
-            
-            $items[] = [
-                'sale_id' => $saleId,
-                'product_id' => $productId,
-                'quantity' => $qty,
-                'unit_price' => $price,
-                'subtotal' => $qty * $price,
-                'tax_amount' => 0,
-                'total' => $qty * $price
-            ];
+        foreach ($itemsData as $item) {
+            $item['sale_id'] = $saleId;
+            $items[] = $item;
 
             // Deduct stock safely (prevent negative stock)
-            $deducted = $stockModel->updateStock($productId, $warehouseId, -$qty, false);
+            $deducted = $stockModel->updateStock($item['product_id'], $warehouseId, -$item['quantity'], false);
             if (!$deducted) {
                 $this->db->transRollback();
-                $product = $productModel->find($productId);
-                $pName = $product ? $product->name : ('Product #' . $productId);
+                $product = $productModel->find($item['product_id']);
+                $pName = $product ? $product->name : ('Product #' . $item['product_id']);
                 return redirect()->back()->withInput()->with('error', "Stock deduction failed for '{$pName}'. Insufficient stock.");
             }
         }

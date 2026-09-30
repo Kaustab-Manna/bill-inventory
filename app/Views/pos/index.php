@@ -283,6 +283,9 @@
                      data-name="<?= strtolower(esc($p->name)) ?>" 
                      data-sku="<?= strtolower(esc($p->sku ?? '')) ?>" 
                      data-price="<?= (float)$p->selling_price ?>"
+                     data-tax-rate="<?= (float)($p->tax_rate ?? 0) ?>"
+                     data-tax-type="<?= esc($p->tax_type ?? 'exclusive') ?>"
+                     data-tax-name="<?= esc($p->tax_name ?? '') ?>"
                      data-stock="<?= $avail ?>"
                      onclick="addToCartFromElement(this)">
                     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px; gap:8px;">
@@ -294,7 +297,14 @@
                         <?php endif; ?>
                     </div>
                     <div class="product-sku"><?= esc($p->sku ?? '') ?></div>
-                    <div class="product-price">₹<?= number_format($p->selling_price, 2) ?></div>
+                    <div style="display:flex; justify-content:space-between; align-items:baseline; margin-top:auto;">
+                        <div class="product-price">₹<?= number_format($p->selling_price, 2) ?></div>
+                        <?php if(!empty($p->tax_rate) && (float)$p->tax_rate > 0): ?>
+                            <span class="badge" style="background: rgba(99, 102, 241, 0.15); color: #818cf8; font-size: 0.7rem; font-weight: 600; padding: 2px 6px; border-radius: 4px; white-space: nowrap;">
+                                +<?= $p->tax_rate + 0 ?>% <?= esc($p->tax_name ?? 'GST') ?>
+                            </span>
+                        <?php endif; ?>
+                    </div>
                 </div>
             <?php endforeach; ?>
         </div>
@@ -351,7 +361,7 @@
                 <span id="summarySubtotal">₹0.00</span>
             </div>
             <div class="summary-row">
-                <span>Tax (0%)</span>
+                <span id="summaryTaxLabel">Tax (0%)</span>
                 <span id="summaryTax">₹0.00</span>
             </div>
             <div class="summary-row">
@@ -516,10 +526,13 @@
         const name = el.getAttribute('data-title') || el.getAttribute('data-name');
         const price = parseFloat(el.getAttribute('data-price')) || 0;
         const stock = parseFloat(el.getAttribute('data-stock')) || 0;
-        addToCart(id, name, price, stock);
+        const taxRate = parseFloat(el.getAttribute('data-tax-rate')) || 0;
+        const taxType = el.getAttribute('data-tax-type') || 'exclusive';
+        const taxName = el.getAttribute('data-tax-name') || '';
+        addToCart(id, name, price, stock, taxRate, taxType, taxName);
     }
 
-    function addToCart(id, name, price, stock) {
+    function addToCart(id, name, price, stock, taxRate = 0, taxType = 'exclusive', taxName = '') {
         if (stock <= 0) {
             notifyMessage('Cannot add to cart: "' + name + '" is OUT OF STOCK!', 'warning');
             return;
@@ -533,7 +546,7 @@
             }
             existing.qty += 1;
         } else {
-            cart.push({ id, name, price, qty: 1, stock: stock });
+            cart.push({ id, name, price, qty: 1, stock: stock, tax_rate: taxRate, tax_type: taxType, tax_name: taxName });
         }
         renderCart();
     }
@@ -560,17 +573,35 @@
     }
 
     function getCartTotals() {
-        const subtotal = cart.reduce((sum, item) => sum + (item.qty * item.price), 0);
+        let subtotal = 0;
+        let totalTax = 0;
+
+        cart.forEach(item => {
+            const lineNet = item.qty * item.price;
+            subtotal += lineNet;
+            
+            const taxRate = parseFloat(item.tax_rate) || 0;
+            const taxType = (item.tax_type || 'exclusive').toLowerCase();
+            
+            if (taxRate > 0) {
+                if (taxType === 'inclusive') {
+                    totalTax += lineNet - (lineNet / (1 + (taxRate / 100)));
+                } else {
+                    totalTax += (lineNet * taxRate) / 100;
+                }
+            }
+        });
+
         const discountInput = document.getElementById('discountInput');
         const discount = Math.max(0, parseFloat(discountInput ? discountInput.value : 0) || 0);
-        const total = Math.max(0, subtotal - discount);
-        return { subtotal, discount, total };
+        const total = Math.max(0, (subtotal + totalTax) - discount);
+        return { subtotal, totalTax, discount, total };
     }
 
     function renderCart() {
         const container = document.getElementById('cartItems');
         const checkoutBtn = document.getElementById('checkoutBtn');
-        const { subtotal, total } = getCartTotals();
+        const { subtotal, totalTax, total } = getCartTotals();
         
         if (cart.length === 0) {
             container.innerHTML = `
@@ -581,6 +612,9 @@
                 </div>
             `;
             document.getElementById('summarySubtotal').innerText = '₹0.00';
+            document.getElementById('summaryTax').innerText = '₹0.00';
+            const taxLabel = document.getElementById('summaryTaxLabel');
+            if (taxLabel) taxLabel.innerText = 'Tax (0%)';
             document.getElementById('summaryTotal').innerText = '₹0.00';
             document.getElementById('checkoutTotalDisplay').innerText = '₹0.00';
             if (checkoutBtn) {
@@ -592,11 +626,16 @@
         let html = '';
         cart.forEach(item => {
             const itemTotal = item.qty * item.price;
+            const taxRate = parseFloat(item.tax_rate) || 0;
             html += `
                 <div class="cart-item">
                     <div class="cart-item-info">
                         <div class="cart-item-title">${escapeHtml(item.name)}</div>
-                        <div class="cart-item-price">₹${item.price.toFixed(2)} <span style="font-size:0.75rem; color:var(--text-muted);">(Stock: ${item.stock})</span></div>
+                        <div class="cart-item-price">
+                            ₹${item.price.toFixed(2)} 
+                            ${taxRate > 0 ? `<span style="font-size:0.75rem; color:#818cf8; font-weight:600;">(+${taxRate}% ${escapeHtml(item.tax_name || 'GST')})</span>` : ''}
+                            <span style="font-size:0.75rem; color:var(--text-muted);">(Stock: ${item.stock})</span>
+                        </div>
                     </div>
                     <div class="cart-item-actions">
                         <button type="button" class="qty-btn" onclick="updateQty(${item.id}, -1)">-</button>
@@ -613,6 +652,11 @@
         container.innerHTML = html;
         
         document.getElementById('summarySubtotal').innerText = '₹' + subtotal.toFixed(2);
+        document.getElementById('summaryTax').innerText = '₹' + totalTax.toFixed(2);
+        const taxLabel = document.getElementById('summaryTaxLabel');
+        if (taxLabel) {
+            taxLabel.innerText = totalTax > 0 ? 'Tax (GST)' : 'Tax (0%)';
+        }
         document.getElementById('summaryTotal').innerText = '₹' + total.toFixed(2);
         document.getElementById('checkoutTotalDisplay').innerText = '₹' + total.toFixed(2);
         
@@ -699,7 +743,7 @@
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processing...';
 
-        const { subtotal, discount, total } = getCartTotals();
+        const { subtotal, totalTax, discount, total } = getCartTotals();
         const paidAmountInput = document.getElementById('amountPaid');
         const paidAmount = parseFloat(paidAmountInput ? paidAmountInput.value : 0) || total;
         
@@ -713,7 +757,7 @@
         formData.append('salesperson_id', salespersonSelect ? salespersonSelect.value : '');
         formData.append('warehouse_id', warehouseSelect ? warehouseSelect.value : '');
         formData.append('subtotal', subtotal.toFixed(2));
-        formData.append('tax_amount', '0');
+        formData.append('tax_amount', totalTax.toFixed(2));
         formData.append('discount', discount.toFixed(2));
         formData.append('total_amount', total.toFixed(2));
         formData.append('paid_amount', paidAmount.toFixed(2));

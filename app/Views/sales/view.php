@@ -67,9 +67,10 @@
                             <tr>
                                 <th class="text-center" width="50">#</th>
                                 <th>Description</th>
-                                <th class="text-end" width="150">Unit Price (₹)</th>
-                                <th class="text-center" width="100">Qty</th>
-                                <th class="text-end" width="150">Total (₹)</th>
+                                <th class="text-end" width="140">Unit Price (₹)</th>
+                                <th class="text-center" width="80">Qty</th>
+                                <th class="text-end" width="120">Tax (₹)</th>
+                                <th class="text-end" width="140">Total (₹)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -79,7 +80,8 @@
                                     <td><?= esc($item->product_name) ?></td>
                                     <td class="text-end"><?= number_format($item->unit_price, 2) ?></td>
                                     <td class="text-center"><?= $item->quantity + 0 ?></td>
-                                    <td class="text-end"><?= number_format($item->total, 2) ?></td>
+                                    <td class="text-end text-info"><?= number_format($item->tax_amount ?? 0, 2) ?></td>
+                                    <td class="text-end fw-bold"><?= number_format($item->total, 2) ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -99,10 +101,18 @@
                                 <td>Subtotal:</td>
                                 <td width="150">₹<?= number_format($sale->subtotal ?? 0, 2) ?></td>
                             </tr>
+                            <?php if (!empty($sale->tax_amount) && (float)$sale->tax_amount > 0): ?>
                             <tr>
-                                <td>Discount (<?= ($sale->discount_percent ?? 0) + 0 ?>%):</td>
-                                <td>₹<?= number_format($sale->discount ?? 0, 2) ?></td>
+                                <td class="text-info">Tax (GST/VAT):</td>
+                                <td class="text-info fw-semibold">+₹<?= number_format($sale->tax_amount, 2) ?></td>
                             </tr>
+                            <?php endif; ?>
+                            <?php if (!empty($sale->discount) && (float)$sale->discount > 0): ?>
+                            <tr>
+                                <td class="text-danger">Discount (<?= ($sale->discount_percent ?? 0) + 0 ?>%):</td>
+                                <td class="text-danger">-₹<?= number_format($sale->discount, 2) ?></td>
+                            </tr>
+                            <?php endif; ?>
                             <tr class="fs-5 border-top fw-bold text-primary">
                                 <td class="pt-3">Total Amount:</td>
                                 <td class="pt-3">₹<?= number_format($sale->total_amount, 2) ?></td>

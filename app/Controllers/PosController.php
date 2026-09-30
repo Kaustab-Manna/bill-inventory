@@ -39,9 +39,10 @@ class PosController extends BaseController
 
         $warehouseId = $selectedWarehouse ? (int)$selectedWarehouse->id : 0;
 
-        $products = $productModel->select('products.*, c.name as category, u.short_name as unit, COALESCE(s.quantity, 0) as stock_qty, COALESCE(s.reserved_qty, 0) as reserved_qty')
+        $products = $productModel->select('products.*, c.name as category, u.short_name as unit, t.name as tax_name, COALESCE(t.rate, 0) as tax_rate, COALESCE(t.type, "exclusive") as tax_type, COALESCE(s.quantity, 0) as stock_qty, COALESCE(s.reserved_qty, 0) as reserved_qty')
                                    ->join('categories c', 'c.id = products.category_id', 'left')
                                    ->join('units u', 'u.id = products.unit_id', 'left')
+                                   ->join('taxes t', 't.id = products.tax_id', 'left')
                                    ->join('stock s', 's.product_id = products.id AND s.warehouse_id = ' . $warehouseId, 'left')
                                    ->where('products.is_active', 1)
                                    ->findAll();
@@ -65,9 +66,10 @@ class PosController extends BaseController
         $warehouseId = (int)$this->request->getGet('warehouse_id');
         $productModel = new ProductModel();
         
-        $builder = $productModel->select('products.*, c.name as category, u.short_name as unit, COALESCE(s.quantity, 0) as stock_qty, COALESCE(s.reserved_qty, 0) as reserved_qty')
+        $builder = $productModel->select('products.*, c.name as category, u.short_name as unit, t.name as tax_name, COALESCE(t.rate, 0) as tax_rate, COALESCE(t.type, "exclusive") as tax_type, COALESCE(s.quantity, 0) as stock_qty, COALESCE(s.reserved_qty, 0) as reserved_qty')
                                 ->join('categories c', 'c.id = products.category_id', 'left')
                                 ->join('units u', 'u.id = products.unit_id', 'left')
+                                ->join('taxes t', 't.id = products.tax_id', 'left')
                                 ->join('stock s', 's.product_id = products.id AND s.warehouse_id = ' . $warehouseId, 'left')
                                 ->where('products.is_active', 1);
 
@@ -155,13 +157,14 @@ class PosController extends BaseController
             }
         }
 
+        $taxAmount = max(0, (float)($post['tax_amount'] ?? 0));
         $userId = session()->get('user_id') ?? 1;
         $saleData = [
             'invoice_no'     => 'INV-' . strtoupper(uniqid()),
             'customer_id'    => !empty($post['customer_id']) ? $post['customer_id'] : null,
             'warehouse_id'   => $warehouseId,
             'subtotal'       => $subtotal,
-            'tax_amount'     => max(0, (float)($post['tax_amount'] ?? 0)),
+            'tax_amount'     => $taxAmount,
             'discount'       => $discount,
             'total_amount'   => $totalAmount,
             'paid_amount'    => $paidAmount,
@@ -181,19 +184,34 @@ class PosController extends BaseController
         $saleId = $saleModel->insert($saleData);
 
         $items = [];
+        $totalCalculatedTax = 0;
         foreach ($cart as $item) {
             $qty = (float)$item['qty'];
             $price = (float)$item['price'];
             $productId = (int)$item['id'];
+            $taxRate = (float)($item['tax_rate'] ?? 0);
+            $taxType = strtolower($item['tax_type'] ?? 'exclusive');
+
+            $lineSubtotal = $qty * $price;
+            $lineTax = 0;
+            if ($taxRate > 0) {
+                if ($taxType === 'inclusive') {
+                    $lineTax = $lineSubtotal - ($lineSubtotal / (1 + ($taxRate / 100)));
+                } else {
+                    $lineTax = ($lineSubtotal * $taxRate) / 100;
+                }
+            }
+            $lineTotal = ($taxType === 'inclusive') ? $lineSubtotal : ($lineSubtotal + $lineTax);
+            $totalCalculatedTax += $lineTax;
 
             $items[] = [
-                'sale_id' => $saleId,
+                'sale_id'    => $saleId,
                 'product_id' => $productId,
-                'quantity' => $qty,
+                'quantity'   => $qty,
                 'unit_price' => $price,
-                'subtotal' => $qty * $price,
-                'tax_amount' => 0,
-                'total' => $qty * $price
+                'subtotal'   => round($lineSubtotal, 2),
+                'tax_amount' => round($lineTax, 2),
+                'total'      => round($lineTotal, 2)
             ];
 
             // Decrement stock safely (allowNegative = false)
@@ -207,6 +225,14 @@ class PosController extends BaseController
                     'message' => "Insufficient stock to complete deduction for '{$pName}'."
                 ]);
             }
+        }
+
+        // If post tax was 0 but products have tax, update sale tax_amount
+        if ($taxAmount <= 0 && $totalCalculatedTax > 0) {
+            $saleModel->update($saleId, [
+                'tax_amount'   => round($totalCalculatedTax, 2),
+                'total_amount' => round(max(0, ($subtotal + $totalCalculatedTax) - $discount), 2)
+            ]);
         }
 
         $saleItemModel->insertBatch($items);

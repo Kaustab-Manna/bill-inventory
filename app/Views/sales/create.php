@@ -37,6 +37,7 @@
             </div>
 
             <!-- Product Selection -->
+            <!-- Product Selection -->
             <div class="mb-4">
                 <h5 class="mb-3 border-bottom pb-2">Items</h5>
                 <div class="input-group mb-3">
@@ -44,8 +45,16 @@
                     <select id="productSearch" class="form-select" onchange="addProduct()">
                         <option value="">Select product to add...</option>
                         <?php foreach ($products as $p): ?>
-                            <option value="<?= $p->id ?>" data-name="<?= esc($p->name) ?>" data-price="<?= $p->selling_price ?>">
-                                <?= esc($p->name) ?> - ₹<?= $p->selling_price ?>
+                            <option value="<?= $p->id ?>" 
+                                    data-name="<?= esc($p->name) ?>" 
+                                    data-price="<?= $p->selling_price ?>"
+                                    data-tax-rate="<?= (float)($p->tax_rate ?? 0) ?>"
+                                    data-tax-type="<?= esc($p->tax_type ?? 'exclusive') ?>"
+                                    data-tax-name="<?= esc($p->tax_name ?? '') ?>">
+                                <?= esc($p->name) ?> - ₹<?= number_format($p->selling_price, 2) ?>
+                                <?php if (!empty($p->tax_rate) && (float)$p->tax_rate > 0): ?>
+                                    (<?= esc($p->tax_name ?: 'Tax') ?>: <?= (float)$p->tax_rate ?>%)
+                                <?php endif; ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -56,10 +65,11 @@
                         <thead class="table-light">
                             <tr>
                                 <th>Product Name</th>
-                                <th width="140">Available Stock</th>
-                                <th width="140">Unit Price (₹)</th>
-                                <th width="130">Quantity</th>
-                                <th width="140">Subtotal (₹)</th>
+                                <th width="120">Available Stock</th>
+                                <th width="130">Unit Price (₹)</th>
+                                <th width="110">Quantity</th>
+                                <th width="130">Tax</th>
+                                <th width="140">Total (₹)</th>
                                 <th width="50"></th>
                             </tr>
                         </thead>
@@ -68,14 +78,21 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <th colspan="4" class="text-end">Subtotal:</th>
+                                <th colspan="5" class="text-end">Subtotal:</th>
                                 <th>
                                     <input type="number" step="0.01" name="subtotal" id="calcSubtotal" class="form-control-plaintext fw-bold" value="0.00" readonly>
                                 </th>
                                 <th></th>
                             </tr>
                             <tr>
-                                <th colspan="4" class="text-end">Discount (%):</th>
+                                <th colspan="5" class="text-end text-info">Tax (₹):</th>
+                                <th>
+                                    <input type="number" step="0.01" name="tax_amount" id="calcTax" class="form-control-plaintext fw-bold text-info" value="0.00" readonly>
+                                </th>
+                                <th></th>
+                            </tr>
+                            <tr>
+                                <th colspan="5" class="text-end">Discount (%):</th>
                                 <th>
                                     <div style="position: relative;">
                                         <input type="number" step="0.01" min="0" max="100" name="discount_percent" id="calcDiscountPercent" class="form-control text-end pe-4" value="0" onkeyup="calculateTotals()" onchange="calculateTotals()">
@@ -86,21 +103,21 @@
                                 <th></th>
                             </tr>
                             <tr>
-                                <th colspan="4" class="text-end fs-5">Total Amount:</th>
+                                <th colspan="5" class="text-end fs-5">Total Amount:</th>
                                 <th>
                                     <input type="number" step="0.01" name="total_amount" id="calcTotal" class="form-control-plaintext fw-bold fs-5 text-primary" value="0.00" readonly>
                                 </th>
                                 <th></th>
                             </tr>
                             <tr>
-                                <th colspan="4" class="text-end">Paid Amount (₹):</th>
+                                <th colspan="5" class="text-end">Paid Amount (₹):</th>
                                 <th>
                                     <input type="number" step="0.01" min="0" name="paid_amount" id="calcPaid" class="form-control text-end" value="0.00" onkeyup="calculateDue()" onchange="calculateDue()">
                                 </th>
                                 <th></th>
                             </tr>
                             <tr>
-                                <th colspan="4" class="text-end text-danger">Due Amount:</th>
+                                <th colspan="5" class="text-end text-danger">Due Amount:</th>
                                 <th>
                                     <input type="number" step="0.01" id="calcDue" class="form-control-plaintext fw-bold text-danger text-end" value="0.00" readonly>
                                 </th>
@@ -179,6 +196,9 @@
         const id = select.value;
         const name = option.getAttribute('data-name');
         const price = parseFloat(option.getAttribute('data-price')).toFixed(2);
+        const taxRate = parseFloat(option.getAttribute('data-tax-rate')) || 0;
+        const taxType = (option.getAttribute('data-tax-type') || 'exclusive').toLowerCase();
+        const taxName = option.getAttribute('data-tax-name') || '';
         const avail = getStock(warehouseId, id);
 
         if (avail <= 0) {
@@ -223,6 +243,15 @@
                     <input type="number" step="any" min="0.01" max="${avail}" name="quantity[]" class="form-control" value="1" onkeyup="calculateRow(this)" onchange="calculateRow(this)" required>
                 </td>
                 <td>
+                    <div class="row-tax-label small text-muted">
+                        ${taxRate > 0 ? `<span class="badge bg-light text-dark border">+${taxRate}% ${taxName || 'Tax'}</span>` : '<span class="text-muted">0%</span>'}
+                    </div>
+                    <div class="fw-semibold text-info small row-tax-val">₹0.00</div>
+                    <input type="hidden" class="row-tax-rate" value="${taxRate}">
+                    <input type="hidden" class="row-tax-type" value="${taxType}">
+                    <input type="hidden" class="row-tax-amount" value="0.00">
+                </td>
+                <td>
                     <input type="number" step="0.01" class="form-control-plaintext row-subtotal fw-bold" value="${price}" readonly>
                 </td>
                 <td>
@@ -230,6 +259,9 @@
                 </td>
             `;
             document.querySelector('#itemsTable tbody').appendChild(tr);
+            
+            // Immediately calculate row tax and totals
+            calculateRow(tr.querySelector('input[name="quantity[]"]'));
         }
 
         select.value = ""; // reset select
@@ -268,14 +300,44 @@
         }
 
         const safeQty = Math.max(0, qty);
-        tr.querySelector('.row-subtotal').value = (price * safeQty).toFixed(2);
+        const lineNet = price * safeQty;
+        
+        const taxRate = parseFloat(tr.querySelector('.row-tax-rate').value) || 0;
+        const taxType = (tr.querySelector('.row-tax-type').value || 'exclusive').toLowerCase();
+        
+        let lineTax = 0;
+        let lineTotal = lineNet;
+        if (taxRate > 0) {
+            if (taxType === 'inclusive') {
+                lineTax = lineNet - (lineNet / (1 + (taxRate / 100)));
+                lineTotal = lineNet;
+            } else {
+                lineTax = (lineNet * taxRate) / 100;
+                lineTotal = lineNet + lineTax;
+            }
+        }
+
+        tr.querySelector('.row-tax-amount').value = lineTax.toFixed(2);
+        const taxValEl = tr.querySelector('.row-tax-val');
+        if (taxValEl) {
+            taxValEl.innerText = lineTax > 0 ? '+₹' + lineTax.toFixed(2) : '₹0.00';
+        }
+
+        tr.querySelector('.row-subtotal').value = lineTotal.toFixed(2);
         calculateTotals();
     }
 
     function calculateTotals() {
         let subtotal = 0;
-        document.querySelectorAll('.row-subtotal').forEach(input => {
-            subtotal += Math.max(0, parseFloat(input.value) || 0);
+        let totalTax = 0;
+        
+        document.querySelectorAll('#itemsTable tbody tr').forEach(tr => {
+            const price = Math.max(0, parseFloat(tr.querySelector('input[name="unit_price[]"]').value) || 0);
+            const qty = Math.max(0, parseFloat(tr.querySelector('input[name="quantity[]"]').value) || 0);
+            const taxAmt = Math.max(0, parseFloat(tr.querySelector('.row-tax-amount').value) || 0);
+            
+            subtotal += (price * qty);
+            totalTax += taxAmt;
         });
 
         const discountPercent = Math.max(0, Math.min(100, parseFloat(document.getElementById('calcDiscountPercent').value) || 0));
@@ -283,9 +345,10 @@
         
         document.getElementById('calcDiscount').value = discountAmount.toFixed(2);
 
-        const total = Math.max(0, subtotal - discountAmount);
+        const total = Math.max(0, (subtotal + totalTax) - discountAmount);
 
         document.getElementById('calcSubtotal').value = subtotal.toFixed(2);
+        document.getElementById('calcTax').value = totalTax.toFixed(2);
         document.getElementById('calcTotal').value = total.toFixed(2);
         
         // Auto-fill paid amount by default to total
