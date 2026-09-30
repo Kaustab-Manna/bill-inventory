@@ -50,16 +50,16 @@
                 <!-- Items -->
                 <div class="table-responsive mb-4">
                     <table class="table table-striped table-bordered align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th class="text-center" width="40">#</th>
-                                <th>Product Returned</th>
-                                <th class="text-center" width="160">Condition & QC</th>
-                                <th class="text-end" width="120">Unit Price (₹)</th>
-                                <th class="text-center" width="70">Qty</th>
-                                <th class="text-end" width="120">Subtotal (₹)</th>
-                                <th class="text-end" width="130">GST( inclu. all tax )</th>
-                                <th class="text-end" width="130">Refund (₹)</th>
+                        <thead style="background: rgba(255, 255, 255, 0.04); border-color: var(--border, #334155);">
+                            <tr style="color: #F1F5F9;">
+                                <th class="text-center" width="40" style="color: #F1F5F9;">#</th>
+                                <th style="color: #F1F5F9;">Product Returned</th>
+                                <th class="text-center" width="160" style="color: #F1F5F9;">Condition & QC</th>
+                                <th class="text-end" width="120" style="color: #F1F5F9;">Unit Price (₹)</th>
+                                <th class="text-center" width="70" style="color: #F1F5F9;">Qty</th>
+                                <th class="text-end" width="120" style="color: #F1F5F9;">Subtotal (₹)</th>
+                                <th class="text-end" width="130" style="color: #F1F5F9;">GST( inclu. all tax )</th>
+                                <th class="text-end" width="130" style="color: #F1F5F9;">Refund (₹)</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -67,9 +67,9 @@
                                 <tr>
                                     <td class="text-center"><?= $i++ ?></td>
                                     <td>
-                                        <div class="fw-bold"><?= esc($item->product_name) ?></div>
+                                        <div class="fw-bold" style="color: #F1F5F9;"><?= esc($item->product_name) ?></div>
                                         <?php if (!empty($item->sku)): ?>
-                                            <small class="text-muted">SKU: <?= esc($item->sku) ?></small>
+                                            <small style="color: #94A3B8;">SKU: <?= esc($item->sku) ?></small>
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-center">
@@ -85,10 +85,10 @@
                                             <span class="badge bg-success">Seal Intact</span>
                                         <?php endif; ?>
                                     </td>
-                                    <td class="text-end"><?= number_format($item->unit_price, 2) ?></td>
-                                    <td class="text-center fw-semibold"><?= $item->quantity + 0 ?></td>
-                                    <td class="text-end"><?= number_format($item->subtotal, 2) ?></td>
-                                    <td class="text-end text-primary"><?= number_format($item->tax_amount, 2) ?></td>
+                                    <td class="text-end" style="color: #F1F5F9;"><?= number_format($item->unit_price, 2) ?></td>
+                                    <td class="text-center fw-semibold" style="color: #F1F5F9;"><?= $item->quantity + 0 ?></td>
+                                    <td class="text-end" style="color: #F1F5F9;"><?= number_format($item->subtotal, 2) ?></td>
+                                    <td class="text-end text-primary fw-semibold"><?= number_format($item->tax_amount, 2) ?></td>
                                     <td class="text-end text-danger fw-bold">- <?= number_format($item->total, 2) ?></td>
                                 </tr>
                             <?php endforeach; ?>
@@ -100,10 +100,10 @@
                 <div class="row">
                     <div class="col-sm-6">
                         <?php if(!empty($return->notes)): ?>
-                        <div class="card bg-light border-0">
+                        <div class="card border-0" style="background: rgba(255, 255, 255, 0.04); border: 1px solid var(--border, #334155) !important;">
                             <div class="card-body p-3">
-                                <strong>Return Reason / Notes:</strong>
-                                <div class="text-muted mt-1"><?= nl2br(esc($return->notes)) ?></div>
+                                <strong style="color: #F1F5F9;">Return Reason / Notes:</strong>
+                                <div class="mt-1" style="color: #CBD5E1;"><?= nl2br(esc($return->notes)) ?></div>
                             </div>
                         </div>
                         <?php endif; ?>
@@ -111,11 +111,11 @@
                     <div class="col-sm-6">
                         <table class="table table-sm table-borderless text-end">
                             <tr>
-                                <td class="text-muted">Subtotal:</td>
-                                <td class="fw-semibold">₹<?= number_format($return->subtotal, 2) ?></td>
+                                <td style="color: #94A3B8;">Subtotal:</td>
+                                <td class="fw-semibold" style="color: #F1F5F9;">₹<?= number_format($return->subtotal, 2) ?></td>
                             </tr>
                             <tr>
-                                <td class="text-primary">GST( inclu. all tax ):</td>
+                                <td style="color: #818CF8;">GST( inclu. all tax ):</td>
                                 <td class="fw-semibold text-primary">₹<?= number_format($return->tax_amount, 2) ?></td>
                             </tr>
                             <tr class="fs-5 border-top fw-bold text-danger">

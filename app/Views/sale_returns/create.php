@@ -1,9 +1,11 @@
 <?= $this->extend('layouts/master') ?>
 
 <?= $this->section('content') ?>
-<div class="card shadow-sm">
-    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-        <h4 class="card-title mb-0 fw-bold"><i class="fas fa-undo text-danger me-2"></i><?= esc($pageTitle) ?></h4>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="card-title mb-0 fw-bold" style="color: var(--text-primary, #F1F5F9);">
+            <i class="fas fa-undo text-danger me-2"></i><?= esc($pageTitle) ?>
+        </h4>
         <a href="<?= base_url('sales-returns') ?>" class="btn btn-outline-secondary btn-sm">
             <i class="fas fa-arrow-left me-1"></i> Back to Returns List
         </a>
@@ -16,22 +18,24 @@
             </div>
         <?php endif; ?>
 
-        <!-- Invoice Lookup Section -->
-        <div class="card bg-light border mb-4">
+        <!-- Invoice Lookup Section (Enhanced Dark Theme High-Contrast) -->
+        <div class="card mb-4" style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.35);">
             <div class="card-body p-3">
                 <div class="d-flex align-items-center justify-content-between mb-2">
-                    <h5 class="card-title fw-bold text-primary mb-0">
+                    <h5 class="card-title fw-bold mb-0" style="color: #818CF8;">
                         <i class="fas fa-file-invoice me-2"></i>Fetch From Sales Invoice
                     </h5>
-                    <span class="badge bg-secondary-subtle text-secondary small">Recommended</span>
+                    <span class="badge" style="background: rgba(99, 102, 241, 0.25); color: #C7D2FE; border: 1px solid rgba(99, 102, 241, 0.5); font-size: 0.75rem; letter-spacing: 0.5px;">RECOMMENDED</span>
                 </div>
-                <p class="text-muted small mb-3">
-                    Enter or select the customer's original Invoice No (e.g. <code>INV-XXXX</code>) to automatically load customer details, warehouse, sold products, unit prices, and tax rates.
+                <p class="mb-3" style="color: #CBD5E1; font-size: 0.875rem;">
+                    Enter or select the customer's original Invoice No (e.g. <code style="background: rgba(15, 23, 42, 0.85); color: #38BDF8; padding: 2px 7px; border-radius: 4px; border: 1px solid #334155; font-weight: 600;">INV-XXXX</code>) to automatically load customer details, warehouse, sold products, unit prices, and tax rates.
                 </p>
                 <div class="row align-items-center g-2">
                     <div class="col-md-6 col-lg-5">
                         <div class="input-group">
-                            <span class="input-group-text bg-white"><i class="fas fa-search text-muted"></i></span>
+                            <span class="input-group-text" style="background: var(--bg-input, #0F172A); border-color: var(--border, #334155); color: #94A3B8;">
+                                <i class="fas fa-search"></i>
+                            </span>
                             <input type="text" id="invoiceSearchInput" class="form-control" list="recentInvoiceList" placeholder="Type or select Invoice No (e.g. INV-...)" autocomplete="off">
                             <datalist id="recentInvoiceList">
                                 <?php if (!empty($recentSales)): ?>
@@ -57,21 +61,21 @@
                 </div>
 
                 <!-- Banner shown after successful fetch -->
-                <div id="invoiceLoadedBanner" class="alert alert-success d-none mt-3 mb-0 py-2 d-flex flex-wrap align-items-center justify-content-between">
+                <div id="invoiceLoadedBanner" class="alert d-none mt-3 mb-0 py-2 d-flex flex-wrap align-items-center justify-content-between" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); color: #6EE7B7;">
                     <div>
                         <i class="fas fa-check-circle text-success me-2"></i>
-                        <strong>Invoice Loaded:</strong> <span id="bannerInvoiceNo" class="badge bg-primary fs-6 me-2"></span>
-                        <span class="me-2">Customer: <strong id="bannerCustomer" class="text-dark"></strong></span>
-                        <span class="me-2">Warehouse: <strong id="bannerWarehouse" class="text-dark"></strong></span>
-                        <span>Total Invoiced: <strong id="bannerTotal" class="text-success"></strong></span>
+                        <strong style="color: #F8FAFC;">Invoice Loaded:</strong> <span id="bannerInvoiceNo" class="badge bg-primary fs-6 me-2"></span>
+                        <span class="me-2" style="color: #E2E8F0;">Customer: <strong id="bannerCustomer" style="color: #FFFFFF;"></strong></span>
+                        <span class="me-2" style="color: #E2E8F0;">Warehouse: <strong id="bannerWarehouse" style="color: #FFFFFF;"></strong></span>
+                        <span style="color: #E2E8F0;">Total Invoiced: <strong id="bannerTotal" style="color: #34D399;"></strong></span>
                     </div>
                     <span class="badge bg-success"><i class="fas fa-link me-1"></i> Invoice Linked</span>
                 </div>
 
                 <!-- Error banner -->
-                <div id="invoiceErrorBanner" class="alert alert-danger d-none mt-3 mb-0 py-2">
+                <div id="invoiceErrorBanner" class="alert alert-danger d-none mt-3 mb-0 py-2" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #FCA5A5;">
                     <i class="fas fa-exclamation-triangle me-2"></i>
-                    <span id="invoiceErrorMessage"></span>
+                    <span id="invoiceErrorMessage" style="color: #FEE2E2;"></span>
                 </div>
             </div>
         </div>
@@ -82,11 +86,11 @@
 
             <div class="row mb-4">
                 <div class="col-md-4 mb-3">
-                    <label class="form-label fw-semibold">Return Date *</label>
+                    <label class="form-label fw-semibold" style="color: #E2E8F0;">Return Date *</label>
                     <input type="datetime-local" name="return_date" class="form-control" value="<?= date('Y-m-d\TH:i') ?>" required>
                 </div>
                 <div class="col-md-4 mb-3">
-                    <label class="form-label fw-semibold">Warehouse (Return To) *</label>
+                    <label class="form-label fw-semibold" style="color: #E2E8F0;">Warehouse (Return To) *</label>
                     <select name="warehouse_id" id="warehouseSelect" class="form-select" required>
                         <option value="">Select Warehouse</option>
                         <?php foreach ($warehouses as $w): ?>
@@ -95,7 +99,7 @@
                     </select>
                 </div>
                 <div class="col-md-4 mb-3">
-                    <label class="form-label fw-semibold">Customer</label>
+                    <label class="form-label fw-semibold" style="color: #E2E8F0;">Customer</label>
                     <select name="customer_id" id="customerSelect" class="form-select">
                         <option value="">Walk-in Customer</option>
                         <?php foreach ($customers as $c): ?>
@@ -107,47 +111,49 @@
 
             <!-- Product Selection / Returned Items -->
             <div class="mb-4">
-                <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2">
-                    <h5 class="mb-0 fw-bold"><i class="fas fa-box-open text-primary me-2"></i>Returned Items</h5>
-                    <small class="text-muted">Return quantities and taxes are verified upon save</small>
+                <div class="d-flex justify-content-between align-items-center mb-3 border-bottom pb-2" style="border-color: var(--border, #334155) !important;">
+                    <h5 class="mb-0 fw-bold" style="color: #818CF8;">
+                        <i class="fas fa-box-open me-2"></i>Returned Items
+                    </h5>
+                    <small style="color: #94A3B8;">Return quantities and taxes are verified upon save</small>
                 </div>
 
                 <!-- Optional manual product add -->
-                <div class="card mb-3 border-0 bg-light">
-                    <div class="card-body p-2">
-                        <div class="input-group">
-                            <span class="input-group-text bg-white"><i class="fas fa-plus-circle text-primary"></i></span>
-                            <select id="productSearch" class="form-select" onchange="addProduct()">
-                                <option value="">Or add / search product manually...</option>
-                                <?php foreach ($products as $p): ?>
-                                    <option value="<?= $p->id ?>" 
-                                            data-name="<?= esc($p->name) ?>" 
-                                            data-price="<?= $p->selling_price ?>"
-                                            data-sku="<?= esc($p->sku ?? '') ?>"
-                                            data-tax-rate="<?= (float)($p->tax_rate ?? 0) ?>"
-                                            data-tax-type="<?= esc($p->tax_type ?? 'exclusive') ?>"
-                                            data-tax-name="<?= esc($p->tax_name ?? 'GST') ?>">
-                                        <?= esc($p->name) ?> <?= !empty($p->sku) ? '('.esc($p->sku).')' : '' ?> - ₹<?= number_format($p->selling_price, 2) ?> <?= ($p->tax_rate > 0) ? '(+'.$p->tax_rate.'% tax)' : '' ?>
-                                    </option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
+                <div class="mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text" style="background: var(--bg-input, #0F172A); border-color: var(--border, #334155); color: #818CF8;">
+                            <i class="fas fa-plus-circle"></i>
+                        </span>
+                        <select id="productSearch" class="form-select" onchange="addProduct()">
+                            <option value="">Or select / search product to return manually...</option>
+                            <?php foreach ($products as $p): ?>
+                                <option value="<?= $p->id ?>" 
+                                        data-name="<?= esc($p->name) ?>" 
+                                        data-price="<?= $p->selling_price ?>"
+                                        data-sku="<?= esc($p->sku ?? '') ?>"
+                                        data-tax-rate="<?= (float)($p->tax_rate ?? 0) ?>"
+                                        data-tax-type="<?= esc($p->tax_type ?? 'exclusive') ?>"
+                                        data-tax-name="<?= esc($p->tax_name ?? 'GST') ?>">
+                                    <?= esc($p->name) ?> <?= !empty($p->sku) ? '('.esc($p->sku).')' : '' ?> - ₹<?= number_format($p->selling_price, 2) ?> <?= ($p->tax_rate > 0) ? '(+'.$p->tax_rate.'% tax)' : '' ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
                     </div>
                 </div>
 
                 <div class="table-responsive">
                     <table class="table table-bordered align-middle" id="itemsTable">
-                        <thead class="table-light">
-                            <tr>
-                                <th>Product Details</th>
-                                <th width="150">Condition & QC</th>
-                                <th width="100" class="text-center">Sold Qty</th>
-                                <th width="140">Unit Price (₹)</th>
-                                <th width="120">Return Qty</th>
-                                <th width="130" class="text-end">Subtotal (₹)</th>
-                                <th width="150" class="text-end">GST( inclu. all tax )</th>
-                                <th width="140" class="text-end">Total Refund (₹)</th>
-                                <th width="50" class="text-center"></th>
+                        <thead style="background: rgba(255, 255, 255, 0.04); border-color: var(--border, #334155);">
+                            <tr style="color: #F1F5F9;">
+                                <th style="color: #F1F5F9;">Product Details</th>
+                                <th width="160" style="color: #F1F5F9;">Condition & QC</th>
+                                <th width="100" class="text-center" style="color: #F1F5F9;">Sold Qty</th>
+                                <th width="140" style="color: #F1F5F9;">Unit Price (₹)</th>
+                                <th width="120" style="color: #F1F5F9;">Return Qty</th>
+                                <th width="130" class="text-end" style="color: #F1F5F9;">Subtotal (₹)</th>
+                                <th width="150" class="text-end" style="color: #F1F5F9;">GST( inclu. all tax )</th>
+                                <th width="140" class="text-end" style="color: #F1F5F9;">Total Refund (₹)</th>
+                                <th width="50" class="text-center" style="color: #F1F5F9;"></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -155,28 +161,28 @@
                         </tbody>
                         <tbody id="emptyTableNotice">
                             <tr>
-                                <td colspan="9" class="text-center text-muted py-4">
-                                    <i class="fas fa-inbox fa-2x mb-2 d-block text-secondary"></i>
+                                <td colspan="9" class="text-center py-4" style="color: #94A3B8;">
+                                    <i class="fas fa-inbox fa-2x mb-2 d-block" style="color: #64748B;"></i>
                                     No items added yet. Fetch an invoice above or select a product manually.
                                 </td>
                             </tr>
                         </tbody>
                         <tfoot>
-                            <tr class="bg-light">
-                                <th colspan="5" class="text-end">Subtotal:</th>
+                            <tr style="border-top: 1px solid var(--border, #334155);">
+                                <th colspan="5" class="text-end" style="color: #CBD5E1;">Subtotal:</th>
                                 <th colspan="3" class="text-end pe-3">
-                                    <input type="number" step="0.01" name="subtotal" id="calcSubtotal" class="form-control-plaintext fw-bold text-end pe-2" value="0.00" readonly>
+                                    <input type="number" step="0.01" name="subtotal" id="calcSubtotal" class="form-control-plaintext fw-bold text-end pe-2" style="color: #F1F5F9;" value="0.00" readonly>
                                 </th>
                                 <th></th>
                             </tr>
-                            <tr class="bg-light">
-                                <th colspan="5" class="text-end text-primary">GST( inclu. all tax ):</th>
+                            <tr>
+                                <th colspan="5" class="text-end fw-semibold" style="color: #818CF8;">GST( inclu. all tax ):</th>
                                 <th colspan="3" class="text-end pe-3">
-                                    <input type="number" step="0.01" name="tax_amount" id="calcTax" class="form-control-plaintext fw-bold text-end pe-2 text-primary" value="0.00" readonly>
+                                    <input type="number" step="0.01" name="tax_amount" id="calcTax" class="form-control-plaintext fw-bold text-end pe-2" style="color: #818CF8;" value="0.00" readonly>
                                 </th>
                                 <th></th>
                             </tr>
-                            <tr class="table-danger border-top border-danger border-2">
+                            <tr style="border-top: 2px solid #EF4444; background: rgba(239, 68, 68, 0.08);">
                                 <th colspan="5" class="text-end fs-5 text-danger fw-bold">Total Refund Amount:</th>
                                 <th colspan="3" class="text-end pe-3">
                                     <input type="number" step="0.01" name="total_amount" id="calcTotal" class="form-control-plaintext fw-bold fs-5 text-end pe-2 text-danger" value="0.00" readonly>
@@ -189,11 +195,11 @@
             </div>
 
             <div class="mb-4">
-                <label class="form-label fw-semibold">Return Reason / Notes</label>
+                <label class="form-label fw-semibold" style="color: #E2E8F0;">Return Reason / Notes</label>
                 <textarea name="notes" class="form-control" rows="3" placeholder="Provide any relevant details or reason for the customer's return..."></textarea>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+            <div class="d-flex justify-content-between align-items-center pt-3 border-top" style="border-color: var(--border, #334155) !important;">
                 <a href="<?= base_url('sales-returns') ?>" class="btn btn-secondary">
                     <i class="fas fa-times me-1"></i> Cancel
                 </a>
@@ -257,7 +263,7 @@
                     document.getElementById('warehouseSelect').value = data.sale.warehouse_id;
                 }
 
-                // Populate Banner
+                // Populate Banner with high visibility text
                 document.getElementById('bannerInvoiceNo').innerText = data.sale.invoice_no;
                 document.getElementById('bannerCustomer').innerText = data.sale.customer_name;
                 document.getElementById('bannerWarehouse').innerText = data.sale.warehouse_name;
@@ -373,7 +379,7 @@
         calculateTotals();
     }
 
-    // Append row helper
+    // Append row helper with high visibility text
     function appendItemRow(item) {
         const tbody = document.querySelector('#itemsTable tbody');
         const emptyNotice = document.getElementById('emptyTableNotice');
@@ -381,12 +387,14 @@
 
         const tr = document.createElement('tr');
         const maxAttr = item.returnableQty ? `max="${item.returnableQty}"` : '';
-        const soldDisplay = item.soldQty !== null ? `<span class="badge bg-light text-dark border">${item.soldQty} <small class="text-muted">(Max: ${item.returnableQty})</small></span>` : `<span class="text-muted">&mdash;</span>`;
+        const soldDisplay = item.soldQty !== null 
+            ? `<span class="badge border" style="background: rgba(255,255,255,0.06); color: #F1F5F9; border-color: var(--border, #334155) !important;">${item.soldQty} <small style="color: #94A3B8;">(Max: ${item.returnableQty})</small></span>` 
+            : `<span style="color: #94A3B8;">&mdash;</span>`;
 
         tr.innerHTML = `
             <td>
-                <div class="fw-bold text-dark">${item.name}</div>
-                ${item.sku ? `<small class="text-muted">SKU: ${item.sku}</small>` : ''}
+                <div class="fw-bold" style="color: #F1F5F9;">${item.name}</div>
+                ${item.sku ? `<small style="color: #94A3B8;">SKU: ${item.sku}</small>` : ''}
                 <input type="hidden" name="product_id[]" value="${item.id}">
                 <input type="hidden" name="tax_rate[]" class="row-tax-rate" value="${item.taxRate}">
                 <input type="hidden" name="tax_type[]" class="row-tax-type" value="${item.taxType}">
@@ -409,11 +417,11 @@
                 <input type="number" step="any" min="0.01" ${maxAttr} name="quantity[]" class="form-control form-control-sm text-center row-qty" value="${item.defaultQty}" onkeyup="calculateRow(this)" onchange="calculateRow(this)" required>
             </td>
             <td>
-                <input type="text" class="form-control-plaintext form-control-sm text-end fw-semibold row-subtotal" value="0.00" readonly>
+                <input type="text" class="form-control-plaintext form-control-sm text-end fw-semibold row-subtotal" style="color: #F1F5F9;" value="0.00" readonly>
             </td>
             <td class="text-end">
-                <span class="badge bg-light text-primary border me-1 row-tax-badge">${item.taxRate > 0 ? item.taxRate + '%' : '0%'}</span>
-                <span class="fw-semibold text-primary row-tax-text">₹0.00</span>
+                <span class="badge border me-1 row-tax-badge" style="background: rgba(99, 102, 241, 0.15); color: #818CF8; border-color: rgba(99, 102, 241, 0.3) !important;">${item.taxRate > 0 ? item.taxRate + '%' : '0%'}</span>
+                <span class="fw-semibold row-tax-text" style="color: #818CF8;">₹0.00</span>
             </td>
             <td>
                 <input type="text" class="form-control-plaintext form-control-sm text-end fw-bold text-danger row-total-text" value="0.00" readonly>

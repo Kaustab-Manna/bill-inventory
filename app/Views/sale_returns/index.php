@@ -1,9 +1,11 @@
 <?= $this->extend('layouts/master') ?>
 
 <?= $this->section('content') ?>
-<div class="card shadow-sm">
-    <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
-        <h4 class="card-title mb-0 fw-bold"><i class="fas fa-undo text-danger me-2"></i><?= esc($pageTitle) ?></h4>
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h4 class="card-title mb-0 fw-bold" style="color: var(--text-primary, #F1F5F9);">
+            <i class="fas fa-undo text-danger me-2"></i><?= esc($pageTitle) ?>
+        </h4>
         <div class="d-flex gap-2">
             <a href="<?= base_url('inspections') ?>" class="btn btn-outline-warning btn-sm">
                 <i class="fas fa-clipboard-check me-1"></i> QC Inspections
@@ -29,16 +31,16 @@
 
         <div class="table-responsive">
             <table class="table table-bordered table-striped table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th width="140">Date</th>
-                        <th width="160">Return No</th>
-                        <th width="160">Original Invoice</th>
-                        <th>Customer</th>
-                        <th width="130" class="text-end">Tax Refunded</th>
-                        <th width="150" class="text-end">Total Refund</th>
-                        <th width="110" class="text-center">Status</th>
-                        <th width="100" class="text-center">Actions</th>
+                <thead style="background: rgba(255, 255, 255, 0.04); border-color: var(--border, #334155);">
+                    <tr style="color: #F1F5F9;">
+                        <th width="140" style="color: #F1F5F9;">Date</th>
+                        <th width="160" style="color: #F1F5F9;">Return No</th>
+                        <th width="160" style="color: #F1F5F9;">Original Invoice</th>
+                        <th style="color: #F1F5F9;">Customer</th>
+                        <th width="130" class="text-end" style="color: #F1F5F9;">Tax Refunded</th>
+                        <th width="150" class="text-end" style="color: #F1F5F9;">Total Refund</th>
+                        <th width="110" class="text-center" style="color: #F1F5F9;">Status</th>
+                        <th width="100" class="text-center" style="color: #F1F5F9;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
