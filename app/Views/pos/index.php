@@ -361,7 +361,7 @@
                 <span id="summarySubtotal">₹0.00</span>
             </div>
             <div class="summary-row">
-                <span id="summaryTaxLabel">Tax (0%)</span>
+                <span id="summaryTaxLabel">GST( inclu. all tax )</span>
                 <span id="summaryTax">₹0.00</span>
             </div>
             <div class="summary-row">
@@ -614,7 +614,7 @@
             document.getElementById('summarySubtotal').innerText = '₹0.00';
             document.getElementById('summaryTax').innerText = '₹0.00';
             const taxLabel = document.getElementById('summaryTaxLabel');
-            if (taxLabel) taxLabel.innerText = 'Tax (0%)';
+            if (taxLabel) taxLabel.innerText = 'GST( inclu. all tax )';
             document.getElementById('summaryTotal').innerText = '₹0.00';
             document.getElementById('checkoutTotalDisplay').innerText = '₹0.00';
             if (checkoutBtn) {
@@ -655,7 +655,7 @@
         document.getElementById('summaryTax').innerText = '₹' + totalTax.toFixed(2);
         const taxLabel = document.getElementById('summaryTaxLabel');
         if (taxLabel) {
-            taxLabel.innerText = totalTax > 0 ? 'Tax (GST)' : 'Tax (0%)';
+            taxLabel.innerText = 'GST( inclu. all tax )';
         }
         document.getElementById('summaryTotal').innerText = '₹' + total.toFixed(2);
         document.getElementById('checkoutTotalDisplay').innerText = '₹' + total.toFixed(2);

@@ -85,7 +85,7 @@
                                 <th></th>
                             </tr>
                             <tr>
-                                <th colspan="5" class="text-end text-info">Tax (₹):</th>
+                                <th colspan="5" class="text-end text-info">GST( inclu. all tax ):</th>
                                 <th>
                                     <input type="number" step="0.01" name="tax_amount" id="calcTax" class="form-control-plaintext fw-bold text-info" value="0.00" readonly>
                                 </th>

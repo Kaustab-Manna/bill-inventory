@@ -103,7 +103,7 @@
                             </tr>
                             <?php if (!empty($sale->tax_amount) && (float)$sale->tax_amount > 0): ?>
                             <tr>
-                                <td class="text-info">Tax (GST/VAT):</td>
+                                <td class="text-info">GST( inclu. all tax ):</td>
                                 <td class="text-info fw-semibold">+₹<?= number_format($sale->tax_amount, 2) ?></td>
                             </tr>
                             <?php endif; ?>
