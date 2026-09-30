@@ -257,7 +257,7 @@ class SalesController extends BaseController
             return redirect()->back()->withInput()->with('error', 'Failed to create sale. Please try again.');
         }
 
-        return redirect()->to('/sales')->with('success', 'Sale Invoice created successfully.');
+        return redirect()->to('/sales/view/' . $saleId)->with('success', 'Sale Invoice created successfully.');
     }
 
     public function view($id)

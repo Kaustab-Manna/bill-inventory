@@ -774,33 +774,23 @@
             const result = await response.json();
             
             if (result.success) {
-                notifyMessage('Sale completed successfully! Invoice #' + (result.invoice_no || result.sale_id), 'success');
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> Success! Opening Invoice...';
+                notifyMessage('Sale completed successfully! Opening invoice...', 'success');
                 
-                // Open the receipt in a new tab if possible
+                // Immediately navigate to the full sale invoice page
                 const receiptUrl = '<?= base_url("sales/view/") ?>' + result.sale_id;
-                const win = window.open(receiptUrl, '_blank');
-                if (!win) {
-                    notifyMessage('Sale created! <a href="' + receiptUrl + '" target="_blank" style="color:#60a5fa; text-decoration:underline; font-weight:600;">Click here to view receipt</a>', 'info', 8000);
-                }
-                
-                // Reset Cart & Inputs
-                cart = [];
-                const discountInput = document.getElementById('discountInput');
-                if (discountInput) discountInput.value = 0;
-                if (paidAmountInput) {
-                    paidAmountInput.value = '';
-                    delete paidAmountInput.dataset.autoFilled;
-                }
-                if (customerSelect) customerSelect.value = "";
-                
-                renderCart();
-                closeModal('checkoutModal');
-                closeModal('upiModal');
+                setTimeout(() => {
+                    window.location.href = receiptUrl;
+                }, 400);
             } else {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
                 notifyMessage(result.message || 'Checkout failed. Please check inputs and stock.', 'error');
             }
         } catch (e) {
             console.error('Checkout error:', e);
+            btn.disabled = false;
+            btn.innerHTML = originalText;
             notifyMessage('A network or server error occurred during checkout. Please try again.', 'error');
         }
 

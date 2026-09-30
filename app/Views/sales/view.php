@@ -136,11 +136,14 @@
     <div class="col-md-3">
         <div class="card mb-3">
             <div class="card-body">
-                <button class="btn btn-primary w-100 mb-3" onclick="window.print()">
+                <button class="btn btn-primary w-100 mb-2" onclick="window.print()">
                     <i class="fas fa-print"></i> Print Invoice
                 </button>
+                <a href="<?= base_url('pos') ?>" class="btn btn-success w-100 mb-2">
+                    <i class="fas fa-cash-register"></i> New POS Sale
+                </a>
                 <a href="<?= base_url('sales') ?>" class="btn btn-outline-secondary w-100">
-                    <i class="fas fa-arrow-left"></i> Back to List
+                    <i class="fas fa-arrow-left"></i> Back to Sales List
                 </a>
             </div>
         </div>
