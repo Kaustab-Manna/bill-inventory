@@ -149,6 +149,7 @@ $routes->group('', ['filter' => 'auth'], function ($routes) {
     // Sales Returns
     $routes->get('/sales-returns', 'SaleReturnController::index');
     $routes->get('/sales-returns/create', 'SaleReturnController::create');
+    $routes->get('/sales-returns/fetch-invoice', 'SaleReturnController::fetchInvoice');
     $routes->post('/sales-returns/store', 'SaleReturnController::store');
     $routes->get('/sales-returns/view/(:num)', 'SaleReturnController::view/$1');
     $routes->get('/sales-returns/delete/(:num)', 'SaleReturnController::delete/$1');

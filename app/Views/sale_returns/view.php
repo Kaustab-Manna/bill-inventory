@@ -6,7 +6,7 @@
         <div class="card" id="printArea">
             <div class="card-body p-5">
                 <!-- Header -->
-                <div class="d-flex justify-content-between align-items-start mb-5 pb-3 border-bottom">
+                <div class="d-flex justify-content-between align-items-start mb-4 pb-3 border-bottom">
                     <div>
                         <h2 class="text-danger mb-1 fw-bold">SALES RETURN</h2>
                         <div class="text-muted fs-5">#<?= esc($return->return_no) ?></div>
@@ -14,13 +14,13 @@
                     <div class="text-end">
                         <h4 class="mb-1">Inventory System</h4>
                         <div class="text-muted">
-                            Warehouse returned to: <?= esc($return->warehouse_name ?? 'N/A') ?>
+                            Warehouse: <?= esc($return->warehouse_name ?? 'N/A') ?>
                         </div>
                     </div>
                 </div>
 
                 <!-- Info -->
-                <div class="row mb-5">
+                <div class="row mb-4">
                     <div class="col-sm-6">
                         <div class="text-muted mb-2">Customer Info:</div>
                         <h5 class="fw-bold mb-1"><?= esc($return->customer_name ?? 'Walk-in Customer') ?></h5>
@@ -32,23 +32,33 @@
                     </div>
                     <div class="col-sm-6 text-end">
                         <div class="mb-2"><span class="text-muted me-2">Date:</span> <?= date('d M Y, h:i A', strtotime($return->return_date)) ?></div>
-                        <div>
+                        <div class="mb-2">
                             <span class="text-muted me-2">Status:</span> 
                             <span class="badge bg-success fs-6">Completed</span>
                         </div>
+                        <?php if (!empty($return->original_invoice_no)): ?>
+                            <div>
+                                <span class="text-muted me-2">Original Invoice:</span>
+                                <a href="<?= base_url('sales/view/' . $return->sale_id) ?>" class="badge bg-primary text-decoration-none fs-6">
+                                    <i class="fas fa-file-invoice me-1"></i><?= esc($return->original_invoice_no) ?>
+                                </a>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 
                 <!-- Items -->
-                <div class="table-responsive mb-5">
-                    <table class="table table-striped table-bordered">
+                <div class="table-responsive mb-4">
+                    <table class="table table-striped table-bordered align-middle">
                         <thead class="table-light">
                             <tr>
-                                <th class="text-center" width="50">#</th>
+                                <th class="text-center" width="40">#</th>
                                 <th>Product Returned</th>
                                 <th class="text-center" width="160">Condition & QC</th>
-                                <th class="text-end" width="130">Unit Price (₹)</th>
-                                <th class="text-center" width="80">Qty</th>
+                                <th class="text-end" width="120">Unit Price (₹)</th>
+                                <th class="text-center" width="70">Qty</th>
+                                <th class="text-end" width="120">Subtotal (₹)</th>
+                                <th class="text-end" width="130">GST( inclu. all tax )</th>
                                 <th class="text-end" width="130">Refund (₹)</th>
                             </tr>
                         </thead>
@@ -56,7 +66,12 @@
                             <?php $i = 1; foreach ($items as $item): ?>
                                 <tr>
                                     <td class="text-center"><?= $i++ ?></td>
-                                    <td><?= esc($item->product_name) ?></td>
+                                    <td>
+                                        <div class="fw-bold"><?= esc($item->product_name) ?></div>
+                                        <?php if (!empty($item->sku)): ?>
+                                            <small class="text-muted">SKU: <?= esc($item->sku) ?></small>
+                                        <?php endif; ?>
+                                    </td>
                                     <td class="text-center">
                                         <?php if (($item->item_condition ?? '') === 'broken_seal'): ?>
                                             <?php if (($item->inspection_status ?? '') === 'passed'): ?>
@@ -71,8 +86,10 @@
                                         <?php endif; ?>
                                     </td>
                                     <td class="text-end"><?= number_format($item->unit_price, 2) ?></td>
-                                    <td class="text-center"><?= $item->quantity + 0 ?></td>
-                                    <td class="text-end text-danger">- <?= number_format($item->total, 2) ?></td>
+                                    <td class="text-center fw-semibold"><?= $item->quantity + 0 ?></td>
+                                    <td class="text-end"><?= number_format($item->subtotal, 2) ?></td>
+                                    <td class="text-end text-primary"><?= number_format($item->tax_amount, 2) ?></td>
+                                    <td class="text-end text-danger fw-bold">- <?= number_format($item->total, 2) ?></td>
                                 </tr>
                             <?php endforeach; ?>
                         </tbody>
@@ -81,16 +98,26 @@
 
                 <!-- Totals -->
                 <div class="row">
-                    <div class="col-sm-7">
+                    <div class="col-sm-6">
                         <?php if(!empty($return->notes)): ?>
-                        <div class="mb-3">
-                            <strong>Return Reason/Notes:</strong> <br>
-                            <?= nl2br(esc($return->notes)) ?>
+                        <div class="card bg-light border-0">
+                            <div class="card-body p-3">
+                                <strong>Return Reason / Notes:</strong>
+                                <div class="text-muted mt-1"><?= nl2br(esc($return->notes)) ?></div>
+                            </div>
                         </div>
                         <?php endif; ?>
                     </div>
-                    <div class="col-sm-5">
+                    <div class="col-sm-6">
                         <table class="table table-sm table-borderless text-end">
+                            <tr>
+                                <td class="text-muted">Subtotal:</td>
+                                <td class="fw-semibold">₹<?= number_format($return->subtotal, 2) ?></td>
+                            </tr>
+                            <tr>
+                                <td class="text-primary">GST( inclu. all tax ):</td>
+                                <td class="fw-semibold text-primary">₹<?= number_format($return->tax_amount, 2) ?></td>
+                            </tr>
                             <tr class="fs-5 border-top fw-bold text-danger">
                                 <td class="pt-3">Total Refund Amount:</td>
                                 <td class="pt-3">₹<?= number_format($return->total_amount, 2) ?></td>
@@ -113,7 +140,7 @@
                     <i class="fas fa-clipboard-check me-1"></i> Go to QC Inspections
                 </a>
                 <a href="<?= base_url('sales-returns') ?>" class="btn btn-outline-secondary w-100">
-                    <i class="fas fa-arrow-left me-1"></i> Back to List
+                    <i class="fas fa-arrow-left me-1"></i> Back to Returns List
                 </a>
             </div>
         </div>
@@ -121,7 +148,7 @@
         <div class="card border-danger">
             <div class="card-body">
                 <a href="<?= base_url('sales-returns/delete/' . $return->id) ?>" class="btn btn-outline-danger w-100" onclick="return confirm('Are you sure you want to delete this return record? The items will be deducted from your warehouse stock.');">
-                    <i class="fas fa-trash"></i> Delete Record
+                    <i class="fas fa-trash me-1"></i> Delete Record
                 </a>
             </div>
         </div>
